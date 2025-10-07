@@ -8,9 +8,14 @@
   stateKey="piscord-splitter"
 >
   <ng-template #panel>
-    <app-sidebar></app-sidebar>
+    <app-sidebar (openModal)="handleOpenModal($event)"></app-sidebar>
   </ng-template>
   <ng-template #panel>
     <router-outlet></router-outlet>
   </ng-template>
 </p-splitter>
+
+<app-create-room
+  [visible]="createRoomModalVisible()"
+  (setVisible)="createRoomModalVisible.set($event)"
+></app-create-room>

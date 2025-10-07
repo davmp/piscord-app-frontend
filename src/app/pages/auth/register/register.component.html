@@ -1,0 +1,124 @@
+<div
+  class="relative w-screen h-screen flex items-center justify-center bg-[url('/assets/auth-bg.svg')] bg-cover bg-center"
+>
+  <div
+    class="max-w-md w-full h-fit bg-neutral-700 p-8 rounded-lg shadow-lg text-white z-10 space-y-4"
+  >
+    <div class="text-center space-y-2">
+      <h2 class="text-xl font-semibold">Bem vindo(a) de volta!</h2>
+      <p class="text-sm text-neutral-300">
+        Estamos felizes em vê-lo novamente.
+      </p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="register()" class="space-y-4">
+      <div class="flex flex-col space-y-1">
+        <label for="username" class="text-sm"
+          >Nome de usuário <span class="text-red-600">*</span></label
+        >
+        <input
+          pInputText
+          type="text"
+          id="username"
+          formControlName="username"
+          aria-errormessage="username-error"
+          class="bg-neutral-800/60!"
+          [dt]="outlined"
+          fluid
+        />
+        @if (registerForm.get('username')?.invalid &&
+        registerForm.get('username')?.touched) {
+        <small id="username-error" class="text-red-600"
+          >Nome de usuário inválido.</small
+        >
+        }
+      </div>
+
+      <div class="flex flex-col space-y-1">
+        <label for="profileUrl" class="text-sm">URL do perfil</label>
+        <input
+          pInputText
+          type="text"
+          id="profileUrl"
+          formControlName="profileUrl"
+          aria-errormessage="profileUrl-error"
+          class="bg-neutral-800/60!"
+          [dt]="outlined"
+          fluid
+        />
+        @if (registerForm.get('profileUrl')?.invalid &&
+        registerForm.get('profileUrl')?.touched) {
+        <small id="profileUrl-error" class="text-red-600"
+          >URL do perfil inválida.</small
+        >
+        }
+      </div>
+
+      <div class="flex flex-col space-y-1">
+        <label for="password" class="text-sm"
+          >Senha <span class="text-red-600">*</span></label
+        >
+        <p-password
+          id="password"
+          formControlName="password"
+          aria-errormessage="password-error"
+          [toggleMask]="true"
+          inputStyleClass="bg-neutral-800/60! rounded-lg! focus:border-neutral-500! border-neutral-600! hover:border-neutral-500! text-neutral-100!"
+          fluid
+        />
+        @if (registerForm.get('password')?.invalid &&
+        registerForm.get('password')?.touched) {
+        <small id="password-error" class="text-red-600"
+          >Por favor, insira uma senha válida.</small
+        >
+        }
+      </div>
+
+      <div class="flex flex-col space-y-1">
+        <label for="confirmPassword" class="text-sm"
+          >Confirmar Senha <span class="text-red-600">*</span></label
+        >
+        <p-password
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          aria-errormessage="confirmPassword-error"
+          [toggleMask]="true"
+          inputStyleClass="bg-neutral-800/60! rounded-lg! focus:border-neutral-500! border-neutral-600! hover:border-neutral-500! text-neutral-100!"
+          fluid
+        />
+        @if (registerForm.get('confirmPassword')?.invalid &&
+        registerForm.get('confirmPassword')?.touched) {
+        <small id="confirmPassword-error" class="text-red-600"
+          >Por favor, insira uma senha válida.</small
+        >
+        } @if (registerForm.get('password')?.value !==
+        registerForm.get('confirmPassword')?.value &&
+        registerForm.get('confirmPassword')?.touched) {
+        <small id="confirmPassword-error" class="text-red-600"
+          >As senhas não coincidem.</small
+        >
+        }
+      </div>
+
+      <p-button
+        type="submit"
+        [dt]="ghost"
+        styleClass="bg-[#5865F2]! hover:bg-[#4752C4]! text-white! mt-2"
+        fluid
+      >
+        Criar conta
+      </p-button>
+      <span class="text-neutral-400 text-sm"
+        >Já tem uma conta?
+        <a routerLink="/login" class="text-[#7e84c4] hover:underline">Entre</a>
+      </span>
+    </form>
+  </div>
+
+  <div
+    class="absolute top-6 left-6 flex items-center space-x-2 select-none text-gray-200"
+  >
+    <img src="/assets/logo.svg" alt="Logo" class="size-7" />
+    <h1 class="text-lg font-bold">Piscord</h1>
+  </div>
+</div>

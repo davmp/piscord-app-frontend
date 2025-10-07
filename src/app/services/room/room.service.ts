@@ -1,32 +1,50 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable } from 'rxjs';
-import type { Room } from '../../models/rooms.models';
+import { HttpClient } from "@angular/common/http";
+import { inject, Injectable, signal } from "@angular/core";
+import { catchError, Observable, shareReplay, tap } from "rxjs";
+import type {
+  CreateRoomRequest,
+  GetRooms,
+  Room,
+} from "../../models/rooms.models";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class RoomService {
-  private _selectedRoom = signal<Room | null>(null);
-
-  get selectedRoom() {
-    return this._selectedRoom();
-  }
+  private readonly roomsApiUrl = "http://127.0.0.1:8000/api/rooms";
+  private http = inject(HttpClient);
+  selectedRoom = signal<Room | null>(null);
 
   selectRoom(room: Room | null) {
-    this._selectedRoom.set(room);
+    this.selectedRoom.set(room);
   }
 
-  getRooms(): Observable<Room[]> {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        const rooms = [
-          { id: '6s7f8g9h0j1k2l3m4n5o', name: 'General' },
-          { id: '1a2b3c4d5e6f7g8h9i0j', name: 'Random' },
-          { id: '0j9i8h7g6f5e4d3c2b1a', name: 'Tech Talk' },
-        ];
-        observer.next(rooms);
-        observer.complete();
-      }, 1000);
-    });
+  getRooms(): Observable<GetRooms> {
+    return this.http.get<GetRooms>(this.roomsApiUrl).pipe(
+      shareReplay(),
+      catchError((error) => {
+        console.error("Error fetching rooms:", error);
+        return [];
+      })
+    );
+  }
+
+  getRoom(id: string): Observable<Room> {
+    return this.http.get<Room>(`${this.roomsApiUrl}/${id}`).pipe(
+      shareReplay(),
+      catchError((error) => {
+        console.error(`Error fetching room with id ${id}:`, error);
+        throw error;
+      })
+    );
+  }
+
+  createRoom(data: CreateRoomRequest): Observable<Room> {
+    return this.http.post<Room>(this.roomsApiUrl, data).pipe(
+      catchError((error) => {
+        console.error("Error creating room:", error);
+        throw error;
+      })
+    );
   }
 }

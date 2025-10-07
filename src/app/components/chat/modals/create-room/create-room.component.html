@@ -1,0 +1,88 @@
+<p-dialog
+  header="Criar sala"
+  [modal]="true"
+  [visible]="visible() || false"
+  (visibleChange)="handleSetVisible($event)"
+  [closable]="!loading"
+  [breakpoints]="{ '960px': '50vw', '640px': '75vw', '480px': '95vw' }"
+  [style]="{ width: '25rem' }"
+  [dt]="dialogThemes.custom"
+  styleClass="[&_.p-dialog-close-button]:rounded-lg! [&_.p-dialog-close-button]:hover:bg-neutral-600/60! [&_.p-dialog-close-button]:text-neutral-400! [&_.p-dialog-close-button]:size-7! [&_.p-dialog-close-button]:p-1.5!"
+>
+  <span class="p-text-secondary block mb-4"
+    >Crie uma sala e convide seus amigos para participar.</span
+  >
+
+  <form [formGroup]="form" (ngSubmit)="createRoom()" class="space-y-4">
+    <div class="flex flex-col space-y-1">
+      <label for="name" class="text-sm" aria-required="true"
+        >Nome <span class="text-red-600">*</span></label
+      >
+      <input
+        pInputText
+        type="text"
+        id="name"
+        formControlName="name"
+        aria-errormessage="name-error"
+        [dt]="inputThemes.outlined"
+        fluid
+      />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+      <small id="name-error" class="text-red-600">Nome inválido.</small>
+      }
+    </div>
+
+    <div class="flex flex-col space-y-1">
+      <label for="picture" class="text-sm">URL da imagem</label>
+      <input
+        pInputText
+        type="text"
+        id="picture"
+        formControlName="picture"
+        aria-errormessage="picture-error"
+        placeholder="https://example.com/image.png"
+        [dt]="inputThemes.outlined"
+        fluid
+      />
+      @if (form.get('picture')?.invalid && form.get('picture')?.touched) {
+      <small id="picture-error" class="text-red-600">URL inválida.</small>
+      }
+    </div>
+
+    <div class="flex flex-col space-y-1">
+      <label for="name" class="text-sm" aria-required="true">Descrição</label>
+      <textarea
+        pTextarea
+        id="info"
+        formControlName="info"
+        aria-errormessage="info-error"
+        rows="1"
+        [maxlength]="200"
+        [dt]="inputThemes.outlined"
+        [autoResize]="true"
+        fluid
+      ></textarea>
+      @if (form.get('info')?.invalid && form.get('info')?.touched) {
+      <small id="info-error" class="text-red-600">Descrição inválida.</small>
+      }
+    </div>
+
+    <div class="flex justify-end gap-2 mt-4">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        (click)="handleSetVisible(false)"
+        [dt]="buttonThemes.ghost"
+        [disabled]="loading"
+      />
+      <p-button
+        label="Criar"
+        type="submit"
+        [loading]="loading"
+        [dt]="buttonThemes.ghost"
+        styleClass="bg-[#5865F2]! hover:bg-[#4752C4]! text-white!"
+        fluid
+      ></p-button>
+    </div>
+  </form>
+</p-dialog>

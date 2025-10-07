@@ -1,0 +1,76 @@
+<div
+  class="relative w-screen h-screen flex items-center justify-center bg-[url('/assets/auth-bg.svg')] bg-cover bg-center"
+>
+  <div
+    class="max-w-md w-full h-fit bg-neutral-700 p-8 rounded-lg shadow-lg text-white z-10 space-y-4"
+  >
+    <div class="text-center space-y-2">
+      <h2 class="text-xl font-semibold">Bem vindo(a) de volta!</h2>
+      <p class="text-sm text-neutral-300">
+        Estamos felizes em vê-lo novamente.
+      </p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="login()" class="space-y-4">
+      <div class="flex flex-col space-y-1">
+        <label for="username" class="text-sm">Nome de usuário</label>
+        <input
+          pInputText
+          type="text"
+          id="username"
+          formControlName="username"
+          aria-errormessage="username-error"
+          [dt]="outlined"
+          fluid
+        />
+        @if (loginForm.get('username')?.invalid &&
+        loginForm.get('username')?.touched) {
+        <small id="username-error" class="text-red-600"
+          >Nome de usuário inválido.</small
+        >
+        }
+      </div>
+
+      <div class="flex flex-col space-y-1">
+        <label for="password" class="text-sm">Senha</label>
+        <p-password
+          id="password"
+          formControlName="password"
+          aria-errormessage="password-error"
+          [feedback]="false"
+          [toggleMask]="true"
+          inputStyleClass="bg-neutral-800/60! rounded-lg! focus:border-neutral-500! border-neutral-600! hover:border-neutral-500! text-neutral-100!"
+          fluid
+        />
+        @if (loginForm.get('password')?.invalid &&
+        loginForm.get('password')?.touched) {
+        <small id="password-error" class="text-red-600"
+          >Por favor, insira uma senha válida.</small
+        >
+        }
+      </div>
+
+      <p-button
+        type="submit"
+        [dt]="ghost"
+        styleClass="bg-[#5865F2]! hover:bg-[#4752C4]! text-white! mt-2"
+        fluid
+      >
+        Entrar
+      </p-button>
+      <span class="text-neutral-400 text-sm"
+        >Precisa de uma conta?
+        <a routerLink="/register" class="text-[#7e84c4] hover:underline"
+          >Cadastre-se</a
+        >
+      </span>
+    </form>
+  </div>
+
+  <div
+    class="absolute top-6 left-6 flex items-center space-x-2 select-none text-gray-200"
+  >
+    <img src="/assets/logo.svg" alt="Logo" class="size-7" />
+    <h1 class="text-lg font-bold">Piscord</h1>
+  </div>
+</div>

@@ -5,3 +5,10 @@ export interface Message {
   content: string;
   timestamp: Date;
 }
+
+export interface GroupMessage {
+  id: string;
+  content: string;
+  created_at: string;
+  username: string;
+}

@@ -2,7 +2,7 @@ import { Component, computed, inject } from "@angular/core";
 import { Avatar } from "primeng/avatar";
 import { Button } from "primeng/button";
 import { RoomService } from "../../../services/room/room.service";
-import { themes } from "../../../themes/button.themes";
+import { buttonThemes } from "../../../themes/form.themes";
 
 @Component({
   selector: "app-header",
@@ -12,9 +12,9 @@ import { themes } from "../../../themes/button.themes";
 export class HeaderComponent {
   roomService = inject(RoomService);
 
-  selectedRoom = computed(() => this.roomService.selectedRoom);
+  selectedRoom = computed(() => this.roomService.selectedRoom());
 
   get ghost() {
-    return themes.ghost;
+    return buttonThemes.ghost;
   }
 }

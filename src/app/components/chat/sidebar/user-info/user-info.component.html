@@ -3,7 +3,11 @@
     class="h-14 bg-neutral-800 border border-neutral-700/20 rounded-lg flex items-center space-x-2 px-3"
   >
     <div class="relative size-9">
-      <p-avatar [image]="user.avatarUrl" shape="circle" class="size-full!" />
+      <p-avatar
+        [image]="user.avatarUrl ?? '/assets/user-placeholder.png'"
+        shape="circle"
+        class="size-full!"
+      />
       <span
         class="absolute bottom-0 -right-1 size-4 bg-green-500 border-3 border-neutral-800 rounded-full"
       ></span>
@@ -18,9 +22,11 @@
       <button
         type="button"
         class="rounded-md size-8 text-neutral-400 hover:bg-neutral-700 p-1 hover:text-white"
+        (click)="menu.toggle($event)"
       >
         <i class="pi pi-cog"></i>
       </button>
+      <p-menu #menu [model]="actions" [popup]="true" [dt]="ghost" />
     </div>
   </div>
 </div>

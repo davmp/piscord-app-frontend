@@ -4,15 +4,12 @@
   <div class="h-full flex items-center space-x-2">
     <div class="h-full flex items-center">
       <p-avatar
-        image="{{
-          roomService.selectedRoom?.pictureUrl ??
-            'https://dbl-discord.usercontent.prism.gg/embed/avatars/1.png'
-        }}"
+        [image]="selectedRoom()?.picture ?? '/assets/user-placeholder.png'"
         shape="circle"
       />
     </div>
     <span class="text-white text-md">
-      {{ roomService.selectedRoom?.name }}
+      {{ selectedRoom()?.display_name }}
     </span>
   </div>
 
