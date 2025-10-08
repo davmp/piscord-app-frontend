@@ -4,6 +4,7 @@ import { catchError, Observable, shareReplay, tap } from "rxjs";
 import type {
   CreateRoomRequest,
   GetRooms,
+  PublicRoom,
   Room,
 } from "../../models/rooms.models";
 
@@ -19,8 +20,22 @@ export class RoomService {
     this.selectedRoom.set(room);
   }
 
-  getRooms(): Observable<GetRooms> {
-    return this.http.get<GetRooms>(this.roomsApiUrl).pipe(
+  getRooms(search: string): Observable<GetRooms<PublicRoom>> {
+    return this.http
+      .get<GetRooms<PublicRoom>>(this.roomsApiUrl, {
+        params: { search },
+      })
+      .pipe(
+        shareReplay(),
+        catchError((error) => {
+          console.error("Error fetching rooms:", error);
+          return [];
+        })
+      );
+  }
+
+  getMyRooms(): Observable<GetRooms> {
+    return this.http.get<GetRooms>(`${this.roomsApiUrl}/my-rooms`).pipe(
       shareReplay(),
       catchError((error) => {
         console.error("Error fetching rooms:", error);
@@ -40,9 +55,28 @@ export class RoomService {
   }
 
   createRoom(data: CreateRoomRequest): Observable<Room> {
+    console.log("Creating room with data:", data);
     return this.http.post<Room>(this.roomsApiUrl, data).pipe(
       catchError((error) => {
         console.error("Error creating room:", error);
+        throw error;
+      })
+    );
+  }
+
+  joinRoom(id: string): Observable<void> {
+    return this.http.post<void>(`${this.roomsApiUrl}/${id}/join`, {}).pipe(
+      catchError((error) => {
+        console.error(`Error joining room with id ${id}:`, error);
+        throw error;
+      })
+    );
+  }
+
+  leaveRoom(id: string): Observable<void> {
+    return this.http.post<void>(`${this.roomsApiUrl}/${id}/leave`, {}).pipe(
+      catchError((error) => {
+        console.error(`Error leaving room with id ${id}:`, error);
         throw error;
       })
     );

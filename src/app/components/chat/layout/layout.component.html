@@ -19,3 +19,8 @@
   [visible]="createRoomModalVisible()"
   (setVisible)="createRoomModalVisible.set($event)"
 ></app-create-room>
+
+<app-find-room
+  [visible]="findRoomModalVisible()"
+  (setVisible)="findRoomModalVisible.set($event)"
+></app-find-room>

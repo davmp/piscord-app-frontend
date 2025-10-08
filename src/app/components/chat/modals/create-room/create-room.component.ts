@@ -12,6 +12,7 @@ import { InputTextModule } from "primeng/inputtext";
 import { TextareaModule } from "primeng/textarea";
 import { RoomService } from "../../../../services/room/room.service";
 import * as themes from "../../../../themes/form.themes";
+import { ChatService } from "../../../../services/chat/chat.service";
 
 @Component({
   selector: "app-create-room",
@@ -25,7 +26,7 @@ import * as themes from "../../../../themes/form.themes";
   templateUrl: "./create-room.component.html",
 })
 export class CreateRoomComponent {
-  private roomService = inject(RoomService);
+  private chatService = inject(ChatService);
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
   form: FormGroup;
@@ -50,6 +51,10 @@ export class CreateRoomComponent {
   }
 
   createRoom() {
+    if (this.form.invalid || this.loading) {
+      return;
+    }
+
     const val = this.form.value;
 
     if (val.name && val.type) {
@@ -63,7 +68,7 @@ export class CreateRoomComponent {
         maxMembers: val.maxMembers > 0 ? val.maxMembers : undefined,
         participantIDs: val.participantIDs,
       };
-      this.roomService.createRoom(createRoomRequest).subscribe((room) => {
+      this.chatService.createRoom(createRoomRequest).subscribe((room) => {
         this.router.navigateByUrl(`/rooms/${room.id}`);
         this.handleSetVisible(false);
         this.form.reset();
@@ -74,7 +79,6 @@ export class CreateRoomComponent {
   }
 
   handleSetVisible(visible: boolean) {
-    console.log("Setting modal visible:", visible);
     this.setVisible.emit(visible);
   }
 }

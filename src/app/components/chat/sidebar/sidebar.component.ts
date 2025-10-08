@@ -1,4 +1,4 @@
-import { Component, inject, output, signal } from "@angular/core";
+import { Component, effect, inject, output, signal } from "@angular/core";
 import { RouterLink } from "@angular/router";
 import { AvatarModule } from "primeng/avatar";
 import { ButtonModule } from "primeng/button";
@@ -7,6 +7,7 @@ import type { Room } from "../../../models/rooms.models";
 import { RoomService } from "../../../services/room/room.service";
 import { buttonThemes } from "../../../themes/form.themes";
 import { UserInfoComponent } from "./user-info/user-info.component";
+import { ChatService } from "../../../services/chat/chat.service";
 
 @Component({
   selector: "app-sidebar",
@@ -18,17 +19,23 @@ import { UserInfoComponent } from "./user-info/user-info.component";
     RouterLink,
   ],
   templateUrl: "./sidebar.component.html",
-  styles: ``,
 })
 export class SidebarComponent {
   readonly roomService = inject(RoomService);
+  private readonly chatService = inject(ChatService);
+
   isLoading = signal(false);
   rooms = signal<Room[]>([]);
 
-  openModal = output<"createRoom">();
+  openModal = output<"createRoom" | "findRooms">();
 
-  ngOnInit() {
+  constructor() {
     this.loadRooms();
+
+    effect(() => {
+      this.chatService.roomChanged();
+      this.loadRooms();
+    });
   }
 
   get loading() {
@@ -45,22 +52,17 @@ export class SidebarComponent {
 
   loadRooms() {
     this.isLoading.set(true);
-    this.roomService.getRooms().subscribe((rooms) => {
+    this.roomService.getMyRooms().subscribe((rooms) => {
       this.rooms.set(rooms.data);
-      if (this.rooms().length > 0) {
-        this.roomService.selectRoom(this.rooms()[0]);
-        // this.loadMessages(true);
-      }
     });
     this.isLoading.set(false);
   }
 
   onSelectRoom(room: Room) {
-    this.roomService.selectRoom(room);
-    // this.loadMessages();
+    this.chatService.selectRoom(room);
   }
 
-  handleOpenModal(type: "createRoom") {
+  handleOpenModal(type: "createRoom" | "findRooms") {
     this.openModal.emit(type);
   }
 }

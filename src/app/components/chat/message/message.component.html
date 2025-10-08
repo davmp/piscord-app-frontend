@@ -1,0 +1,48 @@
+<div
+  class="px-6 py-0.5 grid grid-cols-[40px_1fr] h-fit items-start gap-4 hover:bg-neutral-700/30 relative group/message"
+  [style]="{
+    'margin-top': diffTime() ? '12px' : '0',
+  }"
+>
+  <div
+    class="col-start-1 col-end-2 h-full max-h-16 flex-shrink-0 flex items-center justify-center"
+    [class]="{ 'items-start': !diffTime() }"
+  >
+    @if (diffTime()) {
+    <p-avatar
+      [image]="message()?.picture || '/assets/user-placeholder.png'"
+      shape="circle"
+      styleClass="size-10!"
+    ></p-avatar>
+    } @else {
+    <span
+      class="mt-1 hidden group-hover/message:block text-[11px] text-nowrap truncate text-neutral-500"
+    >
+      {{ formattedDate }}
+    </span>
+    }
+  </div>
+  <div class="col-start-2 col-end-3">
+    @if (diffTime()) {
+    <div class="flex items-center space-x-2">
+      <span class="font-medium text-neutral-200">
+        {{ message()?.username }}
+      </span>
+      <span class="text-xs text-neutral-500">
+        {{ formattedFullDate }}
+      </span>
+    </div>
+    }
+    <div class="font-normal text-neutral-300">{{ message()?.content }}</div>
+  </div>
+  <div
+    class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover/message:opacity-100 transition-opacity"
+  >
+    <button
+      pButton
+      type="button"
+      icon="pi pi-ellipsis-v"
+      class="p-button-text p-button-rounded p-button-sm text-neutral-500 hover:text-neutral-300"
+    ></button>
+  </div>
+</div>

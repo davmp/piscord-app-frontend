@@ -8,6 +8,7 @@
         fluid
         class="w-full"
         styleClass="text-sm! py-2! w-full! bg-neutral-800! border! border-neutral-700/20! hover:bg-neutral-700/50! transition-colors! text-nowrap! truncate!"
+        (click)="handleOpenModal('findRooms')"
       >
       </p-button>
     </header>
@@ -62,8 +63,11 @@
         <p-avatar
           [image]="room.picture ?? '/assets/user-placeholder.png'"
           shape="circle"
+          styleClass="min-w-8!"
         />
-        <span>{{ room.display_name }}</span>
+        <span class="text-start text-nowrap truncate">{{
+          room.display_name
+        }}</span>
         @if (room.last_message) {
         <span>{{ room.last_message.content }}</span>
         }
@@ -71,7 +75,5 @@
       }
     </ul>
   </div>
-  <app-user-info
-    (setCreateModalVisible)="handleOpenModal($event)"
-  ></app-user-info>
+  <app-user-info (setOpenModal)="handleOpenModal($event)"></app-user-info>
 </div>

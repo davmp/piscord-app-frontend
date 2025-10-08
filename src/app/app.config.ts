@@ -22,7 +22,6 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: Aura,
         options: {
-          ripple: true,
           inputStyle: "outlined",
           darkMode: true,
           darkModeSelector: "app-dark",

@@ -18,7 +18,7 @@ export class UserInfoComponent {
   private router = inject(Router);
   user: Partial<User> = {};
 
-  setCreateModalVisible = output<"createRoom">();
+  setOpenModal = output<"createRoom" | "findRooms">();
 
   get ghost() {
     return menuThemes.ghost;
@@ -31,12 +31,12 @@ export class UserInfoComponent {
         {
           label: "Criar",
           icon: "pi pi-plus",
-          command: () => this.handleCreateRoom(),
+          command: () => this.setOpenModal.emit("createRoom"),
         },
         {
           label: "Pesquisar",
           icon: "pi pi-comments",
-          command: () => console.log("Create Channel clicked"),
+          command: () => this.setOpenModal.emit("findRooms"),
         },
       ],
     },
@@ -46,7 +46,7 @@ export class UserInfoComponent {
         {
           label: "Configurações",
           icon: "pi pi-cog",
-          command: () => console.log("User Settings clicked"),
+          routerLink: "/settings",
         },
         {
           label: "Sair",
@@ -67,10 +67,6 @@ export class UserInfoComponent {
     } else {
       this.authService.logout();
     }
-  }
-
-  handleCreateRoom() {
-    this.setCreateModalVisible.emit("createRoom");
   }
 
   handleLogout() {
