@@ -1,6 +1,5 @@
-import { Component, computed, inject, signal } from "@angular/core";
+import { Component, computed, effect, inject, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import { Textarea } from "primeng/textarea";
 import { HeaderComponent } from "../../components/chat/header/header.component";
 import { MessageComponent } from "../../components/chat/message/message.component";
@@ -21,7 +20,6 @@ import * as formThemes from "../../themes/form.themes";
   styles: ``,
 })
 export class ChatComponent {
-  private route = inject(ActivatedRoute);
   private roomService = inject(RoomService);
   private chatService = inject(ChatService);
   private wsService = inject(WebsocketService);
@@ -75,16 +73,9 @@ export class ChatComponent {
   });
 
   constructor() {
-    this.route.paramMap.subscribe((params) => {
-      this.roomId = params.get("roomId");
-      if (this.roomId && this.roomId !== this.roomService.selectedRoom()?.id) {
-        this.roomService.getRoom(this.roomId).subscribe((room) => {
-          this.chatService.selectRoom(room);
-          this.fetchMessages();
-        });
-      } else if (this.roomId) {
-        this.fetchMessages();
-      }
+    effect(() => {
+      this.chatService.roomChanged();
+      this.fetchMessages();
     });
   }
 
@@ -122,7 +113,6 @@ export class ChatComponent {
   }
 
   subscribeToMessages(): void {
-    this.chatService.connect();
     this.wsService.connect().subscribe({
       next: (wsMessage: WSResponse) => {
         if (wsMessage.type === "new_message" && wsMessage.data) {
@@ -148,12 +138,48 @@ export class ChatComponent {
   }
 
   dateSeparator(dateString: string) {
+    var fulldays = [
+      "Domingo",
+      "Segunda",
+      "Terça",
+      "Quarta",
+      "Quinta",
+      "Sexta",
+      "Sábado",
+    ];
+
+    var months = [
+      "Jan",
+      "Fev",
+      "Mar",
+      "Abr",
+      "Mai",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Set",
+      "Out",
+      "Nov",
+      "Dez",
+    ];
+
     const date = new Date(dateString);
 
-    if (date > new Date(Date.now() - 86400000)) {
+    var dt = new Date(dateString),
+      dtDat = dt.getDate(),
+      month = months[dt.getMonth()],
+      diffDays = new Date().getDate() - dtDat,
+      diffMonths = new Date().getMonth() - dt.getMonth(),
+      diffYears = new Date().getFullYear() - dt.getFullYear();
+
+    if (diffYears === 0 && diffDays === 0 && diffMonths === 0) {
       return "Hoje";
-    } else if (date > new Date(Date.now() - 172800000)) {
+    } else if (diffYears === 0 && diffDays === 1) {
       return "Ontem";
+    } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
+      return fulldays[dt.getDay()];
+    } else if (diffYears >= 1) {
+      return month + " " + date + ", " + date.getFullYear();
     }
 
     return date.toLocaleDateString(["pt-BR"], {

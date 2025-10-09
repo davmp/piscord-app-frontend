@@ -19,8 +19,12 @@
       } @for (display of messagesDisplay(); track display.message.id) {
       <li>
         @if (display.showDateSeparator) {
-        <div class="w-full text-neutral-500 text-sm text-center">
+        <div
+          class="w-full text-sm flex items-center px-4 gap-2 text-neutral-400 [&_hr]:w-full [&_hr]:border-t [&_hr]:border-t-neutral-700"
+        >
+          <hr />
           {{ dateSeparator(display.message.created_at) }}
+          <hr />
         </div>
         }
         <app-message

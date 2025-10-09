@@ -4,7 +4,7 @@ import { AuthGuardService } from "./services/auth/auth-guard.service";
 
 export const routes: Routes = [
   {
-    path: "",
+    path: "chat",
     component: LayoutComponent,
     children: [
       {
@@ -12,8 +12,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import("./pages/chat/chat.component").then((m) => m.ChatComponent),
       },
+    ],
+    canActivate: [AuthGuardService],
+  },
+  {
+    path: "chat/:roomId",
+    component: LayoutComponent,
+    children: [
       {
-        path: "chat/:roomId",
+        path: "",
         loadComponent: () =>
           import("./pages/chat/chat.component").then((m) => m.ChatComponent),
       },
@@ -34,5 +41,5 @@ export const routes: Routes = [
         (m) => m.RegisterComponent
       ),
   },
-  { path: "**", redirectTo: "" },
+  { path: "**", redirectTo: "chat" },
 ];
