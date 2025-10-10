@@ -1,4 +1,25 @@
 export const buttonThemes = {
+  primary: {
+    colorScheme: {
+      light: {
+        root: {
+          primary: {
+            background: "#5865F2",
+            hoverBackground: "#4752C4",
+            color: "{neutral.100}",
+            hoverColor: "{neutral.100}",
+            activeBackground: "#4752C477",
+            focusBorderColor: "{neutral.600}",
+            focusRingColor: "{neutral.600}",
+            borderColor: "transparent",
+            activeBorderColor: "transparent",
+            hoverBorderColor: "transparent",
+          },
+          borderRadius: "8px",
+        },
+      },
+    },
+  },
   ghost: {
     colorScheme: {
       light: {
@@ -14,6 +35,39 @@ export const buttonThemes = {
             borderColor: "transparent",
             activeBorderColor: "transparent",
             hoverBorderColor: "transparent",
+          },
+          borderRadius: "8px",
+        },
+      },
+    },
+  },
+  outlined: {
+    colorScheme: {
+      light: {
+        root: {
+          primary: {
+            background: "transparent",
+            hoverBackground: "#73737320",
+            color: "{neutral.300}",
+            hoverColor: "{neutral.200}",
+            activeBackground: "{neutral.600}",
+            focusBorderColor: "{neutral.700}",
+            focusRingColor: "{neutral.700}",
+            borderColor: "{neutral.600}",
+            activeBorderColor: "{neutral.600}",
+            hoverBorderColor: "{neutral.600}",
+          },
+          danger: {
+            background: "transparent",
+            hoverBackground: "#EF454420",
+            color: "{red.500}",
+            hoverColor: "{red.400}",
+            activeBackground: "{red.600}",
+            focusBorderColor: "{red.700}",
+            focusRingColor: "{red.700}",
+            borderColor: "{red.600}",
+            activeBorderColor: "{red.600}",
+            hoverBorderColor: "{red.600}",
           },
           borderRadius: "8px",
         },

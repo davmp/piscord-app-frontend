@@ -1,3 +1,112 @@
+@if (isMobile()) {
+<div
+  class="w-full flex items-center justify-around border-t border-t-neutral-700/50 bg-neutral-800 h-14 p-2 pb-4 gap-2"
+>
+  <div class="flex flex-col items-center text-neutral-100">
+    <div class="size-6 grid place-content-center">
+      <i class="pi pi-home"></i>
+    </div>
+    <span class="text-xs">Home</span>
+  </div>
+  <div
+    class="flex flex-col items-center text-neutral-400"
+    routerLink="/notifications"
+  >
+    <div class="size-6 grid place-content-center">
+      <i class="pi pi-bell"></i>
+    </div>
+    <span class="text-xs">Atividade</span>
+  </div>
+  <div
+    class="flex flex-col items-center text-neutral-400"
+    (click)="visible.set(true)"
+  >
+    <div class="relative size-6">
+      <p-avatar
+        [image]="user.picture ?? '/assets/user-placeholder.png'"
+        shape="circle"
+        class="size-full!"
+      />
+      <span
+        class="absolute -bottom-1 -right-1 size-3 bg-green-500 border-3 border-neutral-800 rounded-full"
+      ></span>
+    </div>
+    <span class="text-xs">Eu</span>
+    <p-drawer
+      [dt]="menuThemes.ghost"
+      styleClass="bg-neutral-800! border-[1px_0_0_0]! border-neutral-700! h-fit! *:text-neutral-400!"
+      [(visible)]="visible"
+      [closable]="false"
+      position="bottom"
+    >
+      <ng-template #header>
+        <div class="w-full flex flex-col space-y-2">
+          <div>
+            <div class="relative size-20">
+              <p-avatar
+                [image]="user.picture ?? '/assets/user-placeholder.png'"
+                shape="circle"
+                class="size-full!"
+              />
+              <span
+                class="absolute -bottom-0 -right-0 size-4 bg-green-500 border-3 border-neutral-700 rounded-full"
+              ></span>
+            </div>
+          </div>
+          <div class="flex-1 overflow-hidden text-ellipsis space-y-1">
+            <p class="text-xl font-semibold text-neutral-100 truncate">
+              {{ user.username }}
+            </p>
+            <p class="text-xs text-neutral-400 truncate">#{{ user.id }}</p>
+          </div>
+          <p-button
+            styleClass="rounded-full! text-neutral-400"
+            class="mt-4"
+            fluid
+            label="Editar Perfil"
+            routerLink="/profile"
+            [dt]="buttonThemes.primary"
+          >
+            <i pButtonIcon class="pi pi-pencil text-sm!"></i>
+          </p-button>
+        </div>
+      </ng-template>
+
+      <div class="space-y-4">
+        <div class="bg-neutral-700 w-full flex flex-col rounded-2xl px-4 py-3">
+          <span class="font-medium">Bio</span>
+          <p class="text-sm font-normal text-neutral-300">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat.
+          </p>
+        </div>
+
+        <div class="bg-neutral-700 w-full flex flex-col rounded-2xl px-4 py-3">
+          <span>Amigos</span>
+          <ul>
+            <li class="mt-2 text-center text-sm text-neutral-500">
+              Nenhum amigo ainda.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <ng-template #footer>
+        <p-button
+          label="Sair"
+          icon="pi pi-sign-out"
+          [dt]="buttonThemes.outlined"
+          severity="danger"
+          fluid
+          (click)="handleLogout()"
+        ></p-button>
+      </ng-template>
+    </p-drawer>
+  </div>
+</div>
+} @else {
 <div class="z-100 p-2 pt-0">
   <div
     class="h-14 bg-neutral-800 border border-neutral-700/20 rounded-lg flex items-center space-x-2 px-3"
@@ -26,7 +135,8 @@
       >
         <i class="pi pi-cog"></i>
       </button>
-      <p-menu #menu [model]="actions" [popup]="true" [dt]="ghost" />
+      <p-menu #menu [model]="actions" [popup]="true" [dt]="menuThemes.ghost" />
     </div>
   </div>
 </div>
+}

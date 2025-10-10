@@ -1,28 +1,32 @@
-import { Component, inject, Output, EventEmitter, output } from "@angular/core";
+import { Component, inject, output, signal } from "@angular/core";
+import { Router, RouterLink } from "@angular/router";
 import type { MenuItem } from "primeng/api";
-import { AvatarModule } from "primeng/avatar";
-import { MenuModule } from "primeng/menu";
-import { AuthService } from "../../../../services/auth/auth.service";
+import { Avatar } from "primeng/avatar";
+import { Button } from "primeng/button";
+import { Drawer } from "primeng/drawer";
+import { Menu } from "primeng/menu";
 import type { User } from "../../../../models/user.models";
-import { menuThemes } from "../../../../themes/form.themes";
-import { Router } from "@angular/router";
+import { AuthService } from "../../../../services/auth/auth.service";
+import { DeviceService } from "../../../../services/device.service";
+import * as formThemes from "../../../../themes/form.themes";
 
 @Component({
   selector: "app-user-info",
-  imports: [AvatarModule, MenuModule],
+  imports: [Avatar, Menu, Drawer, Button, RouterLink],
   templateUrl: "./user-info.component.html",
   styles: ``,
 })
 export class UserInfoComponent {
-  private authService = inject(AuthService);
   private router = inject(Router);
-  user: Partial<User> = {};
+  private authService = inject(AuthService);
+  private deviceService = inject(DeviceService);
 
+  user: Partial<User> = {};
+  visible = signal(false);
   setOpenModal = output<"createRoom" | "findRooms">();
 
-  get ghost() {
-    return menuThemes.ghost;
-  }
+  menuThemes = formThemes.menuThemes;
+  buttonThemes = formThemes.buttonThemes;
 
   actions: MenuItem[] = [
     {
@@ -72,5 +76,9 @@ export class UserInfoComponent {
   handleLogout() {
     this.authService.logout();
     this.router.navigateByUrl("/login");
+  }
+
+  isMobile() {
+    return this.deviceService.isMobile();
   }
 }

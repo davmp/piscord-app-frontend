@@ -1,8 +1,10 @@
 <div class="w-full h-screen flex flex-col bg-neutral-800">
   <app-header></app-header>
 
-  <section class="relative w-full h-full overflow-y-auto flex flex-col-reverse">
-    <ul class="flex flex-col-reverse w-full">
+  <section
+    class="relative w-full h-full overflow-y-scroll flex flex-col-reverse hide-scrollbar"
+  >
+    <ul class="flex flex-col-reverse w-full pb-4">
       @if (messagesDisplay().length === 0 && !loadingMessages) {
       <div
         class="absolute inset-0 flex flex-col items-center justify-center text-center text-neutral-400 p-4"
@@ -36,7 +38,35 @@
     </ul>
   </section>
 
-  <div class="flex-1 p-2">
+  @if (isMobile()) {
+  <div
+    class="w-full flex items-center border-t border-t-neutral-700/50 h-18 min-h-fit max-h-32 p-2 pb-4 gap-2"
+  >
+    <div
+      class="w-full flex items-center bg-neutral-700/40 max-h-32 overflow-y-scroll hide-scrollbar rounded-2xl min-h-[47px]"
+    >
+      <textarea
+        pTextarea
+        rows="1"
+        [maxlength]="500"
+        fluid
+        [placeholder]="inputPlaceholder()"
+        [autoResize]="true"
+        [(ngModel)]="newMessageContent"
+        [dt]="inputThemes.outlined"
+        [style]="{ border: '0', backgroundColor: 'transparent' }"
+        class="flex-1!"
+      ></textarea>
+    </div>
+    <p-button
+      icon="pi pi-send"
+      [dt]="buttonThemes.ghost"
+      styleClass="rounded-full! bg-[#5865F2]! active:bg-[#4752C4]! text-white!"
+      (click)="sendMessage()"
+    ></p-button>
+  </div>
+  } @else {
+  <div class="w-full p-2">
     <div
       class="w-full flex items-center border border-neutral-700/50 min-h-14 rounded-lg"
     >
@@ -54,4 +84,5 @@
       ></textarea>
     </div>
   </div>
+  }
 </div>

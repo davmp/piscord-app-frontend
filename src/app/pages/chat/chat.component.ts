@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { Button } from "primeng/button";
 import { Textarea } from "primeng/textarea";
 import { HeaderComponent } from "../../components/chat/header/header.component";
 import { MessageComponent } from "../../components/chat/message/message.component";
@@ -10,12 +11,13 @@ import {
 import { ChatService } from "../../services/chat/chat.service";
 import { MessageService } from "../../services/chat/message.service";
 import { WebsocketService } from "../../services/chat/ws.service";
+import { DeviceService } from "../../services/device.service";
 import { RoomService } from "../../services/room/room.service";
 import * as formThemes from "../../themes/form.themes";
 
 @Component({
   selector: "app-chat",
-  imports: [HeaderComponent, MessageComponent, Textarea, FormsModule],
+  imports: [HeaderComponent, MessageComponent, Textarea, FormsModule, Button],
   templateUrl: "./chat.component.html",
   styles: ``,
 })
@@ -24,6 +26,7 @@ export class ChatComponent {
   private chatService = inject(ChatService);
   private wsService = inject(WebsocketService);
   private messageService = inject(MessageService);
+  private deviceService = inject(DeviceService);
 
   buttonThemes = formThemes.buttonThemes;
   inputThemes = formThemes.inputThemes;
@@ -135,6 +138,10 @@ export class ChatComponent {
       }
       this.newMessageContent = "";
     }
+  }
+
+  isMobile() {
+    return this.deviceService.isMobile();
   }
 
   dateSeparator(dateString: string) {

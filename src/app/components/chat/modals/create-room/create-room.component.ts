@@ -10,9 +10,8 @@ import { ButtonModule } from "primeng/button";
 import { DialogModule } from "primeng/dialog";
 import { InputTextModule } from "primeng/inputtext";
 import { TextareaModule } from "primeng/textarea";
-import { RoomService } from "../../../../services/room/room.service";
-import * as themes from "../../../../themes/form.themes";
 import { ChatService } from "../../../../services/chat/chat.service";
+import * as themes from "../../../../themes/form.themes";
 
 @Component({
   selector: "app-create-room",

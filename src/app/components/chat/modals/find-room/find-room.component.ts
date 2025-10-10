@@ -1,4 +1,11 @@
-import { Component, effect, inject, input, output } from "@angular/core";
+import {
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 import { AvatarModule } from "primeng/avatar";
@@ -6,11 +13,10 @@ import { ButtonModule } from "primeng/button";
 import { DialogModule } from "primeng/dialog";
 import { InputText } from "primeng/inputtext";
 import { SkeletonModule } from "primeng/skeleton";
-import type { PublicRoom, Room } from "../../../../models/rooms.models";
+import type { PublicRoom } from "../../../../models/rooms.models";
+import { ChatService } from "../../../../services/chat/chat.service";
 import { RoomService } from "../../../../services/room/room.service";
 import * as themes from "../../../../themes/form.themes";
-import { ChatService } from "../../../../services/chat/chat.service";
-import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
 
 @Component({
   selector: "app-find-room",
@@ -33,8 +39,8 @@ export class FindRoomComponent {
 
   visible = input<boolean>();
   setVisible = output<boolean>();
+  search = signal("");
 
-  search = "";
   isLoading = false;
   rooms: PublicRoom[] = [];
 
@@ -42,22 +48,14 @@ export class FindRoomComponent {
   buttonThemes = themes.buttonThemes;
   inputThemes = themes.inputThemes;
 
-  private searchSubject = new Subject<string>();
-
   constructor() {
     effect(() => {
       this.visible();
       if (this.visible()) {
         this.roomChanged();
-        this.searchSubject.next(this.search);
+        this.loadRooms(this.search());
       }
     });
-
-    this.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((search) => {
-        this.loadRooms(search);
-      });
   }
 
   loadRooms(search: string) {
@@ -81,10 +79,5 @@ export class FindRoomComponent {
 
   handleSetVisible(visible: boolean) {
     this.setVisible.emit(visible);
-  }
-
-  setSearch(value: string) {
-    this.search = value;
-    this.searchSubject.next(value);
   }
 }

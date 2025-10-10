@@ -2,6 +2,7 @@ import { Component, inject, signal } from "@angular/core";
 import { ActivatedRoute, RouterOutlet } from "@angular/router";
 import { SplitterModule } from "primeng/splitter";
 import { ChatService } from "../../../services/chat/chat.service";
+import { DeviceService } from "../../../services/device.service";
 import { RoomService } from "../../../services/room/room.service";
 import { CreateRoomComponent } from "../modals/create-room/create-room.component";
 import { FindRoomComponent } from "../modals/find-room/find-room.component";
@@ -20,8 +21,9 @@ import { SidebarComponent } from "../sidebar/sidebar.component";
 })
 export class LayoutComponent {
   private route = inject(ActivatedRoute);
-  private roomService = inject(RoomService);
+  roomService = inject(RoomService);
   private chatService = inject(ChatService);
+  private deviceService = inject(DeviceService);
 
   createRoomModalVisible = signal(false);
   findRoomModalVisible = signal(false);
@@ -33,10 +35,13 @@ export class LayoutComponent {
 
     this.route.paramMap.subscribe((params) => {
       this.roomId = params.get("roomId");
-      if (this.roomId && this.roomId !== this.roomService.selectedRoom()?.id) {
-        this.roomService.getRoom(this.roomId).subscribe((room) => {
-          this.chatService.selectRoom(room);
-        });
+      if (!this.roomId) {
+        this.chatService.leaveRoom();
+      } else if (
+        !this.roomService.selectedRoom() ||
+        this.roomId !== this.roomService.selectedRoom()?.id
+      ) {
+        this.chatService.selectRoomId(this.roomId);
       }
     });
   }
@@ -47,5 +52,9 @@ export class LayoutComponent {
     } else if (type === "findRooms") {
       this.findRoomModalVisible.set(true);
     }
+  }
+
+  isMobile() {
+    return this.deviceService.isMobile();
   }
 }

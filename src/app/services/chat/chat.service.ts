@@ -1,9 +1,8 @@
 import { inject, Injectable, signal } from "@angular/core";
 import type { Message, WSMessage } from "../../models/message.models";
+import type { CreateRoomRequest, Room } from "../../models/rooms.models";
 import { RoomService } from "../room/room.service";
 import { WebsocketService } from "./ws.service";
-import type { CreateRoomRequest, Room } from "../../models/rooms.models";
-import type { Observable } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -53,18 +52,16 @@ export class ChatService {
     this.messages = [];
     this.typingUsers = [];
 
-    this.wsService.sendMessage({
-      type: "connection",
-      payload: { action: "join_room", room_id: room.id },
-    });
+    if (room) {
+      this.wsService.sendMessage({
+        type: "connection",
+        payload: { action: "join_room", room_id: room.id },
+      });
+    }
     return null;
   }
 
   selectRoomId(roomId: string) {
-    if (!this.wsService.connected) {
-      return "Not connected";
-    }
-
     this.roomService.getRoom(roomId).subscribe((room) => {
       if (!room) return;
 

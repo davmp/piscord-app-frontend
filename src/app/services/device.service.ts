@@ -11,7 +11,6 @@ export class DeviceService {
     if (!this.isBrowser) {
       return false;
     }
-    return true;
-    //return window.innerWidth <= this.mobileWidthThreshold;
+    return window.innerWidth <= this.mobileWidthThreshold;
   }
 }

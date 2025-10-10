@@ -4,10 +4,10 @@ import { AvatarModule } from "primeng/avatar";
 import { ButtonModule } from "primeng/button";
 import { SkeletonModule } from "primeng/skeleton";
 import type { Room } from "../../../models/rooms.models";
+import { ChatService } from "../../../services/chat/chat.service";
 import { RoomService } from "../../../services/room/room.service";
 import { buttonThemes } from "../../../themes/form.themes";
 import { UserInfoComponent } from "./user-info/user-info.component";
-import { ChatService } from "../../../services/chat/chat.service";
 
 @Component({
   selector: "app-sidebar",
