@@ -53,7 +53,7 @@ export class ChatService {
     if (room) {
       this.wsService.sendMessage({
         type: "connection",
-        payload: { action: "join_room", room_id: room.id },
+        payload: { action: "enter_room", room_id: room.id },
       });
     }
     return null;
@@ -68,7 +68,7 @@ export class ChatService {
 
       this.wsService.sendMessage({
         type: "connection",
-        payload: { action: "join_room", room_id: roomId },
+        payload: { action: "enter_room", room_id: roomId },
       });
     });
     return null;
