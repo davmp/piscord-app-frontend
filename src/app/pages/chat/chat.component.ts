@@ -1,4 +1,12 @@
-import { Component, computed, effect, inject, signal } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  type OnDestroy,
+  type OnInit,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { Button } from "primeng/button";
@@ -35,7 +43,7 @@ import * as formThemes from "../../themes/form.themes";
   ],
   templateUrl: "./chat.component.html",
 })
-export class ChatComponent {
+export class ChatComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private roomService = inject(RoomService);
   private chatService = inject(ChatService);
@@ -114,6 +122,11 @@ export class ChatComponent {
 
   ngOnInit() {
     this.subscribeToMessages();
+  }
+
+  ngOnDestroy() {
+    this.roomService.selectRoom(null);
+    this.chatService.exitRoom();
   }
 
   fetchMessages() {
