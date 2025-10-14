@@ -59,7 +59,7 @@
       } @for(room of rooms(); track room.id) {
       <p-button
         fluid
-        styleClass="justify-start! transition-none! hover:text-stone-300! {{
+        styleClass="justify-start! transition-none! hover:text-stone-300! group/room {{
           room.id === selectedRoom()?.id && 'bg-stone-800! text-stone-200!'
         }}"
         routerLink="/chat/{{ room.id }}"
@@ -89,6 +89,15 @@
           >
           }
         </div>
+
+        @if (room.type !== 'direct') {
+        <button
+          class="hidden group-hover/room:grid place-content-center hover:text-stone-200 text-stone-500"
+          (click)="onLeaveRoom(room)"
+        >
+          <i class="pi pi-times text-sm!"></i>
+        </button>
+        }
       </p-button>
       }
     </ul>

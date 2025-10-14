@@ -6,7 +6,7 @@ import {
   output,
   signal,
 } from "@angular/core";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { AvatarModule } from "primeng/avatar";
 import { ButtonModule } from "primeng/button";
 import { SkeletonModule } from "primeng/skeleton";
@@ -30,6 +30,7 @@ import { UserInfoComponent } from "./user-info/user-info.component";
   templateUrl: "./sidebar.component.html",
 })
 export class SidebarComponent {
+  private router = inject(Router);
   private roomService = inject(RoomService);
   private chatService = inject(ChatService);
   private notificationService = inject(NotificationService);
@@ -102,6 +103,13 @@ export class SidebarComponent {
 
   onSelectRoom(room: Room) {
     this.chatService.selectRoom(room);
+  }
+
+  onLeaveRoom(room: Room) {
+    this.roomService.leaveRoom(room.id).subscribe(() => {
+      this.chatService.leaveRoom();
+      this.router.navigate([]);
+    });
   }
 
   handleOpenModal(type: "createRoom" | "findRooms") {
