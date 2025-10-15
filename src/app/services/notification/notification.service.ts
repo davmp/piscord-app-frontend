@@ -2,10 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 import type { Message } from "../../models/message.models";
-import type {
-  Notification,
-  NotificationsResponse,
-} from "../../models/notification.models";
+import type { NotificationsResponse } from "../../models/notification.models";
 import { WebsocketService } from "../chat/ws.service";
 
 @Injectable({
@@ -18,7 +15,7 @@ export class NotificationService {
   private http = inject(HttpClient);
 
   messageSubscription: Subject<Message> = new Subject();
-  notificationSubscription: Subject<Notification | null> = new Subject();
+  notificationSubscription: Subject<true> = new Subject();
 
   constructor() {
     this.subscribeToNotifications();
@@ -32,7 +29,7 @@ export class NotificationService {
         }
 
         if (message.type === "notification") {
-          this.notificationSubscription.next(message);
+          this.notificationSubscription.next(true);
         }
         if (message.type === "message_notification") {
           this.messageSubscription.next(message.data);
@@ -46,15 +43,11 @@ export class NotificationService {
   }
 
   deleteNotification(notificationId: string) {
-    return this.http
-      .delete(`${this.notificationApiUrl}/${notificationId}`)
-      .subscribe((res) => res);
+    return this.http.delete(`${this.notificationApiUrl}/${notificationId}`);
   }
 
   deleteAllMyNotifications() {
-    return this.http
-      .delete(`${this.notificationApiUrl}/delete-all`)
-      .subscribe((res) => res);
+    return this.http.delete(`${this.notificationApiUrl}/delete-all`);
   }
 
   getUnreadNotificationCount() {
@@ -62,14 +55,13 @@ export class NotificationService {
   }
 
   markAsRead(notificationId: string) {
-    return this.http
-      .put(`${this.notificationApiUrl}/${notificationId}/read`, {})
-      .subscribe((res) => res);
+    return this.http.put(
+      `${this.notificationApiUrl}/${notificationId}/read`,
+      {}
+    );
   }
 
   markAllAsRead() {
-    return this.http
-      .put(`${this.notificationApiUrl}/read-all`, {})
-      .subscribe((res) => res);
+    return this.http.put(`${this.notificationApiUrl}/read-all`, {});
   }
 }

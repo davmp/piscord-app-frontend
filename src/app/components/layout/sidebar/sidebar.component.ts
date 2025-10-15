@@ -131,8 +131,7 @@ export class SidebarComponent {
   formattedDate(dateStr: string): string {
     const date = new Date(dateStr);
     const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+    const diffDays = now.getDate() - date.getDate();
 
     if (diffDays < 1) {
       return date.toLocaleTimeString(["pt-BR"], {
@@ -143,7 +142,7 @@ export class SidebarComponent {
     } else {
       return date.toLocaleDateString(["pt-BR"], {
         day: "2-digit",
-        month: "short",
+        month: "2-digit",
         year: "2-digit",
       });
     }
