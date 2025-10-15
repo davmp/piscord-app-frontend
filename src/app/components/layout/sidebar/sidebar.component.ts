@@ -55,27 +55,35 @@ export class SidebarComponent {
 
     this.notificationService.messageSubscription.subscribe((message) => {
       const rooms = this.rooms();
-      const updatedRooms = rooms.map((room) =>
-        room.id === message.room_id
-          ? {
-              ...room,
-              last_message: {
-                id: message.id,
-                room_id: message.room_id,
-                username: message.username,
-                content: message.content,
-                created_at: message.created_at,
-              },
-            }
-          : room
-      );
 
-      const updatedRoom = updatedRooms.find((r) => r.id === message.room_id);
-      const sortedRooms = updatedRoom
-        ? [updatedRoom, ...updatedRooms.filter((r) => r.id !== message.room_id)]
-        : updatedRooms;
+      if (rooms.some((room) => room.id === message.room_id)) {
+        const updatedRooms = rooms.map((room) =>
+          room.id === message.room_id
+            ? {
+                ...room,
+                last_message: {
+                  id: message.id,
+                  room_id: message.room_id,
+                  username: message.username,
+                  content: message.content,
+                  created_at: message.created_at,
+                },
+              }
+            : room
+        );
 
-      this.rooms.set(sortedRooms);
+        const updatedRoom = updatedRooms.find((r) => r.id === message.room_id);
+        const sortedRooms = updatedRoom
+          ? [
+              updatedRoom,
+              ...updatedRooms.filter((r) => r.id !== message.room_id),
+            ]
+          : updatedRooms;
+
+        this.rooms.set(sortedRooms);
+      } else {
+        this.chatService.roomChanged.update((n) => n + 1);
+      }
     });
 
     effect(() => {

@@ -83,6 +83,9 @@ export class ChatUserComponent {
   sendMessage(): void {
     const user = this.user();
 
+    const content = this.newMessageContent();
+    const fileUrl = this.newMessageFileUrl() ?? null;
+
     if (user && this.newMessageContent().trim()) {
       const requestData: CreateRoomRequest = {
         type: "direct",
@@ -94,15 +97,14 @@ export class ChatUserComponent {
         next: (room) => {
           const err = this.chatService.selectRoom(room);
 
+          console.log("Selecting room: ", room, err);
+
           if (err) {
             console.error("Error entering new room: ", err);
           } else {
-            this.chatService.sendMessage(
-              this.newMessageContent().trim(),
-              null,
-              this.newMessageFileUrl()
-            );
+            console.log({ content, fileUrl });
 
+            this.chatService.sendMessage(content, null, fileUrl);
             this.router.navigate(["chat", room.id]);
           }
         },
