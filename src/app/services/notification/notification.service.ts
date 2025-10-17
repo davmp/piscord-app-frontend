@@ -9,8 +9,7 @@ import { WebsocketService } from "../chat/ws.service";
   providedIn: "root",
 })
 export class NotificationService {
-  private readonly notificationApiUrl =
-    "http://127.0.0.1:8000/api/notifications";
+  private readonly notificationApiUrl = "/api/notifications";
   private wsService = inject(WebsocketService);
   private http = inject(HttpClient);
 

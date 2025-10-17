@@ -12,7 +12,7 @@ import type {
   providedIn: "root",
 })
 export class RoomService {
-  private readonly roomsApiUrl = "http://127.0.0.1:8000/api/rooms";
+  private readonly roomsApiUrl = "/api/rooms";
   private http = inject(HttpClient);
   selectedRoom = signal<Room | null>(null);
 

@@ -9,7 +9,7 @@ import { AuthService } from "../user/auth/auth.service";
 export class WebsocketService {
   private authService = inject(AuthService);
   private socket$: WebSocketSubject<any>;
-  private readonly WS_URL = "ws://localhost:8000/api/ws";
+  private readonly WS_URL = `ws://${window && window.location.host}/api/ws`;
 
   connected = false;
 

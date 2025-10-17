@@ -16,8 +16,8 @@ import { DeviceService } from "../../device.service";
   providedIn: "root",
 })
 export class AuthService {
-  private readonly authApiUrl = "http://localhost:8000/api";
-  private readonly profileApiUrl = "http://localhost:8000/api/profile";
+  private readonly authApiUrl = "/api";
+  private readonly profileApiUrl = "/api/profile";
   private readonly deviceService = inject(DeviceService);
   private http = inject(HttpClient);
 

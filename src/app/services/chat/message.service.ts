@@ -7,7 +7,7 @@ import type { MessagePaginationResult } from "../../models/message.models";
   providedIn: "root",
 })
 export class MessageService {
-  private readonly apiUrl = "http://localhost:8000/api/rooms";
+  private readonly apiUrl = "/api/rooms";
   private readonly http = inject(HttpClient);
 
   getMessages(

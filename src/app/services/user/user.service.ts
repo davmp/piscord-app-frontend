@@ -6,14 +6,10 @@ import type { Profile } from "../../models/user.models";
   providedIn: "root",
 })
 export class UserService {
-  private readonly profileApiUrl = "http://localhost:8000/api/profile";
+  private readonly profileApiUrl = "/api/profile";
   private http = inject(HttpClient);
 
   getProfileById(id: string) {
     return this.http.get<Profile>(`${this.profileApiUrl}/${id}`);
-  }
-
-  getFriends() {
-    return this.http.get<Profile[]>(`${this.profileApiUrl}/friends`);
   }
 }
