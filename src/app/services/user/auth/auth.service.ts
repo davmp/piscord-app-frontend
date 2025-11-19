@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable, Injector } from "@angular/core";
 import { BehaviorSubject, Observable, shareReplay, tap } from "rxjs";
 import type {
   AuthResponse,
@@ -10,7 +10,9 @@ import type {
   Profile,
   UpdateProfileRequest,
 } from "../../../models/user.models";
+import { WebsocketService } from "../../chat/ws.service";
 import { DeviceService } from "../../device.service";
+import { RoomService } from "../../room/room.service";
 
 @Injectable({
   providedIn: "root",
@@ -18,10 +20,19 @@ import { DeviceService } from "../../device.service";
 export class AuthService {
   private readonly authApiUrl = "/api";
   private readonly profileApiUrl = "/api/profile";
-  private readonly deviceService = inject(DeviceService);
+  private deviceService = inject(DeviceService);
   private http = inject(HttpClient);
+  private injector = inject(Injector);
 
   profileChanged = new BehaviorSubject<Profile | null>(this.getStoredProfile());
+
+  private get wsService(): WebsocketService {
+    return this.injector.get(WebsocketService);
+  }
+
+  private get roomService(): RoomService {
+    return this.injector.get(RoomService);
+  }
 
   getProfile() {
     return this.http.get<Profile>(this.profileApiUrl).pipe(
@@ -70,6 +81,10 @@ export class AuthService {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
     }
+
+    this.wsService.close();
+    this.roomService.selectedRoom.next(null);
+    this.profileChanged.next(null);
   }
 
   isAuthenticated(): boolean {

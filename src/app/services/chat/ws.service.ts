@@ -2,10 +2,12 @@ import { inject, Injectable } from "@angular/core";
 import {
   catchError,
   EMPTY,
+  filter,
   finalize,
   Observable,
   retry,
   shareReplay,
+  switchMap,
   timer,
 } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
@@ -21,7 +23,9 @@ export class WebsocketService {
 
   private socket$!: WebSocketSubject<any>;
   connection$ = this.deviceService.isBrowser
-    ? this.createConnection().pipe(
+    ? this.authService.profileChanged.pipe(
+        filter((profile) => !!profile),
+        switchMap(() => this.createConnection()),
         shareReplay({ bufferSize: 1, refCount: true })
       )
     : EMPTY;
@@ -35,7 +39,11 @@ export class WebsocketService {
   }
 
   private createConnection(): Observable<any> {
-    if (!this.deviceService.isBrowser) {
+    if (
+      !this.deviceService.isBrowser ||
+      !this.wsUrl ||
+      !this.authService.isAuthenticated()
+    ) {
       return EMPTY;
     }
 
@@ -71,8 +79,9 @@ export class WebsocketService {
   }
 
   public close(): void {
-    if (this.deviceService.isBrowser) {
+    if (this.deviceService.isBrowser && this.socket$) {
       this.socket$.complete();
+      this.socket$ = undefined!;
     }
   }
 }
