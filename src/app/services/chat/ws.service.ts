@@ -29,7 +29,7 @@ export class WebsocketService {
   connected = false;
 
   private get wsUrl() {
-    return this.deviceService.isBrowser
+    return this.deviceService.isBrowser && window.location
       ? `ws://${window.location.host}/api/ws`
       : null;
   }
