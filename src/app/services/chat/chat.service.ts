@@ -238,8 +238,6 @@ export class ChatService {
       return "Not connected";
     }
 
-    console.log("refresj");
-
     this.wsService.sendMessage(
       JSON.stringify({
         type: "connection",

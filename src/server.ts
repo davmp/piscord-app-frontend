@@ -15,6 +15,17 @@ const browserDistFolder = resolve(serverDistFolder, "../browser");
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+const backendUrl = process.env["API_URL"] || "http://localhost:8000";
+const wsUrl = process.env["WS_URL"] || "ws://localhost:8000/api/ws";
+
+app.get("/env.json", (_, res) => {
+  res.setHeader("Cache-Control", "no-store, must-revalidate");
+  res.json({
+    apiUrl: backendUrl,
+    wsUrl: wsUrl,
+  });
+});
+
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
@@ -41,7 +52,6 @@ app.use(
 /**
  * Handle backend requests by forwarding to Nginx.
  */
-const backendUrl = process.env["API_URL"] || "http://localhost:8000";
 
 app.use(
   "/api",
@@ -67,23 +77,14 @@ app.use("/**", (req, res, next) => {
 
 /**
  * Start the server if this module is the main entry point.
- * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
+ * The server listens on the port defined by the `PORT` environment variable, or defaults to 4200.
  */
 if (isMainModule(import.meta.url)) {
-  const port = process.env["PORT"] || 4000;
+  const port = process.env["PORT"] || 4200;
   app.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
 }
-
-const wsUrl = process.env["WS_URL"] || null;
-
-app.get('/env.json', (req, res) => {
-  res.json({
-    apiUrl: backendUrl,
-    wsUrl: wsUrl,
-  });
-});
 
 /**
  * Request handler used by the Angular CLI (for dev-server and during build) or Firebase Cloud Functions.

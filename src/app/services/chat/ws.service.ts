@@ -51,6 +51,8 @@ export class WebsocketService {
       return EMPTY;
     }
 
+    console.log("Creating WebSocket connection...");
+
     return this.wsUrl$.pipe(
       filter((url) => !!url),
       switchMap((url) => {
@@ -58,8 +60,6 @@ export class WebsocketService {
 
         return new Observable<any>((subscriber) => {
           if (!this.socket$ || this.socket$.closed) {
-            console.log("Creating new WebSocket connection:", finalUrl);
-
             this.socket$ = webSocket({
               url: finalUrl,
               openObserver: { next: () => (this.connected = true) },
