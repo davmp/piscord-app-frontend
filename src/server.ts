@@ -15,17 +15,6 @@ const browserDistFolder = resolve(serverDistFolder, "../browser");
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
-const backendUrl = process.env["API_URL"] || "http://localhost:8000";
-const wsUrl = process.env["WS_URL"] || "ws://localhost:8000/api/ws";
-
-app.get("/env.json", (_, res) => {
-  res.setHeader("Cache-Control", "no-store, must-revalidate");
-  res.json({
-    apiUrl: backendUrl,
-    wsUrl: wsUrl,
-  });
-});
-
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
@@ -52,6 +41,7 @@ app.use(
 /**
  * Handle backend requests by forwarding to Nginx.
  */
+const backendUrl = process.env["API_URL"] || "http://localhost:8000";
 
 app.use(
   "/api",
