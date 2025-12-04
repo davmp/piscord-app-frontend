@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   output,
@@ -11,7 +12,10 @@ import { Avatar } from "primeng/avatar";
 import { Button } from "primeng/button";
 import { Dialog } from "primeng/dialog";
 import { Drawer } from "primeng/drawer";
+import { ProgressSpinnerModule } from "primeng/progressspinner";
+import { SkeletonModule } from "primeng/skeleton";
 import { TabsModule } from "primeng/tabs";
+import { catchError, finalize, of } from "rxjs";
 import { type RoomDetails } from "../../../models/rooms.models";
 import { ChatService } from "../../../services/chat/chat.service";
 import { DeviceService } from "../../../services/device.service";
@@ -22,7 +26,16 @@ import { UserPopoverComponent } from "../profile-popover/user-popover.component"
 
 @Component({
   selector: "app-room-info-modal",
-  imports: [Avatar, Dialog, Drawer, TabsModule, Button, UserPopoverComponent],
+  imports: [
+    Avatar,
+    Dialog,
+    Drawer,
+    TabsModule,
+    Button,
+    ProgressSpinnerModule,
+    SkeletonModule,
+    UserPopoverComponent,
+  ],
   templateUrl: "./room-info-modal.component.html",
 })
 export class RoomInfoModalComponent {
@@ -31,23 +44,44 @@ export class RoomInfoModalComponent {
   private deviceService = inject(DeviceService);
   private router = inject(Router);
 
-  room = input<RoomDetails | null>(null);
+  isLoading = signal(false);
   visible = signal(false);
+  room = signal<RoomDetails | null>(null);
+  roomId = input<string | undefined>(undefined);
   setEditRoom = output<boolean>();
 
   readonly buttonThemes = formThemes.buttonThemes;
   readonly dialogThemes = formThemes.dialogThemes;
   readonly menuThemes = formThemes.menuThemes;
-  readonly members = computed(() => {
-    return this.room()
-      ?.members.map((member) => ({
-        ...member,
-        is_admin: this.room()?.admins.some(
-          (admin) => admin.user_id === member.user_id
-        ),
-      }))
+
+  constructor() {
+    effect(() => {
+      const roomId = this.roomId();
+      const visible = this.visible();
+
+      if (roomId && visible) {
+        this.isLoading.set(true);
+        this.roomService
+          .getRoom(roomId)
+          .pipe(
+            finalize(() => this.isLoading.set(false)),
+            catchError((err) => {
+              console.error("Error fetching room info: ", err);
+              this.visible.set(false);
+              return of(null);
+            })
+          )
+          .subscribe((room) => {
+            this.room.set(room);
+          });
+      }
+    });
+  }
+
+  readonly membersDisplay = computed(() => {
+    return this.room()?.members
       .sort((a, b) => {
-        if ((a.is_me && !b.is_me) || (a.is_admin && !b.is_admin)) {
+        if ((a.isMe && !b.isMe) || (a.isAdmin && !b.isAdmin)) {
           return -1;
         }
         return 1;
@@ -67,10 +101,10 @@ export class RoomInfoModalComponent {
   handleRemoveMember(memberId: string) {
     const room = this.room();
 
-    if (room && room.members.some((m) => m.user_id === memberId)) {
+    if (room && room.members.some((m) => m.userId === memberId)) {
       this.roomService
         .updateRoom(room.id, {
-          remove_participant_ids: [memberId],
+          removeMembers: [memberId],
         })
         .subscribe({
           next: (room) => {

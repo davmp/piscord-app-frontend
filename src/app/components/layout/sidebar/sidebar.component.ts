@@ -5,6 +5,7 @@ import { AvatarModule } from "primeng/avatar";
 import { ButtonModule } from "primeng/button";
 import { SkeletonModule } from "primeng/skeleton";
 import { catchError, EMPTY, finalize, startWith, switchMap, tap } from "rxjs";
+import type { Message } from "../../../models/message.models";
 import type { Room } from "../../../models/rooms.models";
 import { ChatService } from "../../../services/chat/chat.service";
 import { DeviceService } from "../../../services/device.service";
@@ -49,6 +50,10 @@ export class SidebarComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((room) => this.currentRoom.set(room));
 
+    this.roomService.roomCreated
+      .pipe(takeUntilDestroyed())
+      .subscribe((room) => this.rooms.update((rooms) => [room, ...rooms]));
+
     this.notificationService.notifications$
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
@@ -57,32 +62,33 @@ export class SidebarComponent {
 
     this.notificationService.messages$
       .pipe(takeUntilDestroyed())
-      .subscribe((message) => {
+      .subscribe((message: Message) => {
         const rooms = this.rooms();
 
-        if (rooms.some((room) => room.id === message.room_id)) {
+        if (rooms.some((room) => room.id === message.roomId)) {
           const updatedRooms = rooms.map((room) =>
-            room.id === message.room_id
+            room.id === message.roomId
               ? {
                   ...room,
-                  last_message: {
+                  lastMessage: {
                     id: message.id,
-                    room_id: message.room_id,
-                    username: message.username,
                     content: message.content,
-                    created_at: message.created_at,
+                    author: {
+                      id: message.author.id,
+                      username: message.author.username,
+                      picture: message.author.picture,
+                    },
+                    createdAt: message.createdAt,
                   },
                 }
               : room
           );
 
-          const updatedRoom = updatedRooms.find(
-            (r) => r.id === message.room_id
-          );
+          const updatedRoom = updatedRooms.find((r) => r.id === message.roomId);
           const sortedRooms = updatedRoom
             ? [
                 updatedRoom,
-                ...updatedRooms.filter((r) => r.id !== message.room_id),
+                ...updatedRooms.filter((r) => r.id !== message.roomId),
               ]
             : updatedRooms;
 

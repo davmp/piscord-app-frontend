@@ -20,7 +20,7 @@
         />
         <span
           class="absolute bottom-0 right-0 size-5 border-4 border-stone-700 rounded-full {{
-            userInfo()?.is_online ? 'bg-green-500' : 'bg-red-500'
+            userInfo()?.isOnline ? 'bg-green-500' : 'bg-red-500'
           }}"
         ></span>
       </div>
@@ -60,10 +60,10 @@
     >
       <i class="pi pi-user-plus"></i>
     </button>
-    @if (userInfo()?.direct_chat_id) {
+    @if (userInfo()?.directChatId) {
     <button
       class="size-8 rounded-full bg-stone-700/80 text-stone-300 grid place-content-center hover:bg-stone-700 transition-colors cursor-pointer"
-      routerLink="/chat/{{ userInfo()?.direct_chat_id }}"
+      routerLink="/chat/{{ userInfo()?.directChatId }}"
     >
       <i class="pi pi-comments"></i>
     </button>

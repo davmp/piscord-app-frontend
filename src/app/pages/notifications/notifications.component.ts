@@ -42,8 +42,8 @@ export class NotificationsComponent {
   handleClickNotification(notification: Notification) {
     this.handleReadNotification(notification.id);
 
-    if (notification.link) {
-      this.router.navigateByUrl(notification.link);
+    if (notification.actionUrl) {
+      this.router.navigateByUrl(notification.actionUrl);
     }
   }
 

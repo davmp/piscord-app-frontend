@@ -1,9 +1,9 @@
 import { Component, inject, signal } from "@angular/core";
 import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators,
-  type FormGroup,
+    FormBuilder,
+    ReactiveFormsModule,
+    Validators,
+    type FormGroup,
 } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 import { Button } from "primeng/button";
@@ -66,7 +66,7 @@ export class LoginComponent {
       .login(loginRequest)
       .pipe(
         tap((profile) => {
-          this.authService.profileChanged.next(profile.user);
+          this.authService.auth.next(profile.user);
           this.router.navigateByUrl("/", { skipLocationChange: true });
         }),
         finalize(() => this.isLoading.set(false)),

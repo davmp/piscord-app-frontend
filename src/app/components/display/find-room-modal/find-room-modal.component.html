@@ -59,18 +59,18 @@
         />
         <div class="flex flex-col items-start -space-y-1">
           <span class="text-start text-nowrap truncate">{{
-            room.display_name
+            room.displayName
           }}</span>
           <span
             class="text-xs text-stone-400 text-start text-nowrap truncate"
             >{{
-              room.member_count + "/" + (room.max_members ?? 50) + " membros"
+              room.memberCount + "/" + (room.maxMembers ?? 50) + " membros"
             }}</span
           >
         </div>
       </div>
 
-      @if (room.is_member) {
+      @if (room.isMember) {
       <p-button
         label="Abrir"
         styleClass="ml-auto! h-8! p-2! rounded-sm! bg-stone-800! hover:opacity-90"

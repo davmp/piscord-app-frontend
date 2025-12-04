@@ -8,7 +8,6 @@ import {
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { AutoFocus } from "primeng/autofocus";
 import { Avatar } from "primeng/avatar";
 import { Button } from "primeng/button";
 import { InputGroup } from "primeng/inputgroup";
@@ -16,6 +15,7 @@ import { InputGroupAddon } from "primeng/inputgroupaddon";
 import { InputText } from "primeng/inputtext";
 import { Popover } from "primeng/popover";
 import { Textarea } from "primeng/textarea";
+import type { SendMessage } from "../../../models/message.models";
 import type { CreateRoomRequest } from "../../../models/rooms.models";
 import type { Profile } from "../../../models/user.models";
 import { ChatService } from "../../../services/chat/chat.service";
@@ -34,7 +34,6 @@ import * as formThemes from "../../../themes/form.themes";
     Popover,
     InputGroup,
     InputGroupAddon,
-    AutoFocus,
     FormsModule,
   ],
   templateUrl: "./user.component.html",
@@ -99,8 +98,9 @@ export class ChatUserComponent {
     if (user && (this.newMessageContent().trim() || fileUrl)) {
       const requestData: CreateRoomRequest = {
         type: "direct",
-        max_members: 2,
-        participant_ids: [user.id],
+        maxMembers: 2,
+        members: [user.id],
+        admins: []
       };
 
       this.chatService.createRoom(requestData).subscribe({
@@ -110,7 +110,12 @@ export class ChatUserComponent {
           if (err) {
             console.error("Error entering new room: ", err);
           } else {
-            this.chatService.sendMessage(content, null, fileUrl);
+            const message: SendMessage = {
+              content,
+              fileUrl,
+              replyTo: null
+            }
+            this.chatService.sendMessage(message);
             this.router.navigate(["chat", room.id]);
           }
         },

@@ -136,7 +136,7 @@
   >
     <div class="relative size-9">
       <p-avatar
-        [image]="profile()?.picture ?? '/assets/piscord.svg'"
+        [image]="user()?.picture ?? '/assets/piscord.svg'"
         shape="circle"
         class="size-full! [&_img]:object-cover bg-lime-600!"
       />
@@ -146,9 +146,9 @@
     </div>
     <div class="flex-1 overflow-hidden text-ellipsis">
       <p class="text-sm font-semibold truncate">
-        {{ profile()?.username }}
+        {{ user()?.username }}
       </p>
-      <p class="text-xs text-stone-400 truncate">#{{ profile()?.id }}</p>
+      <p class="text-xs text-stone-400 truncate">#{{ user()?.id }}</p>
     </div>
     <div class="ml-auto">
       <button

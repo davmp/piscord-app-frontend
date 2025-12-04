@@ -1,13 +1,23 @@
+export type NotificationType =
+"new_message"|
+"user_joined"|
+"user_left"|
+"friend_request"|
+"friend_request_accepted"|
+"room_invite"|
+"mention"|
+"system";
+
 export interface Notification {
   id: string;
+  userId: string;
+  type: NotificationType;
   title: string;
-  link: string;
+  body: string;
+  actionUrl?: string;
   picture?: string;
-  content: string;
-  object_id: string;
-  type: string;
-  read_at: string;
-  created_at: string;
+  isRead: boolean;
+  createdAt: string;
 }
 
 export interface NotificationsResponse {
@@ -18,7 +28,5 @@ export interface NotificationsResponse {
 export interface WSNotification {
   id: string;
   type: string;
-  object_id: string;
+  objectId: string;
 }
-
-export interface MessageNotification {}

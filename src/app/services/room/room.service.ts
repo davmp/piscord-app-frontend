@@ -1,13 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { BehaviorSubject, catchError, Observable, shareReplay } from "rxjs";
+import { BehaviorSubject, catchError, Observable, shareReplay, Subject } from "rxjs";
 import type {
   CreateRoomRequest,
   GetRooms,
   PublicRoom,
   RoomDetails as Room,
   RoomDetails,
-  UpdateRoomRequest,
+  UpdateRoomRequest
 } from "../../models/rooms.models";
 
 @Injectable({
@@ -18,6 +18,7 @@ export class RoomService {
   private http = inject(HttpClient);
 
   selectedRoom = new BehaviorSubject<RoomDetails | null>(null);
+  roomCreated = new Subject<Room>();
 
   getRooms(search: string): Observable<GetRooms<PublicRoom>> {
     return this.http

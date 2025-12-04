@@ -9,6 +9,7 @@ import type {
 import type {
   Profile,
   UpdateProfileRequest,
+  User,
 } from "../../../models/user.models";
 import { WebsocketService } from "../../chat/ws.service";
 import { DeviceService } from "../../device.service";
@@ -24,7 +25,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private injector = inject(Injector);
 
-  profileChanged = new BehaviorSubject<Profile | null>(this.getStoredProfile());
+  auth = new BehaviorSubject<User | null>(this.getStoredProfile());
 
   private get wsService(): WebsocketService {
     return this.injector.get(WebsocketService);
@@ -37,17 +38,22 @@ export class AuthService {
   getProfile() {
     return this.http.get<Profile>(this.profileApiUrl).pipe(
       tap((profile) => {
-        this.profileChanged.next(profile);
-        this.setProfile(profile);
+        const user: User = {
+          id: profile.id,
+          username: profile.username,
+          picture: profile.picture,
+        };
+        this.auth.next(user);
+        this.setAuth(user);
       })
     );
   }
 
   updateProfile(data: Partial<UpdateProfileRequest>) {
-    return this.http.put<Profile>(this.profileApiUrl, data).pipe(
+    return this.http.put<User>(this.profileApiUrl, data).pipe(
       tap((profile) => {
-        this.profileChanged.next(profile);
-        this.setProfile(profile);
+        this.auth.next(profile);
+        this.setAuth(profile);
       })
     );
   }
@@ -57,7 +63,7 @@ export class AuthService {
       .post<AuthResponse>(`${this.authApiUrl}/auth/login`, data)
       .pipe(
         tap((res) => {
-          this.profileChanged.next(res.user);
+          this.auth.next(res.user);
           this.setSession(res);
         }),
         shareReplay()
@@ -69,7 +75,7 @@ export class AuthService {
       .post<AuthResponse>(`${this.authApiUrl}/auth/register`, data)
       .pipe(
         tap((res) => {
-          this.profileChanged.next(res.user);
+          this.auth.next(res.user);
           this.setSession(res);
         }),
         shareReplay()
@@ -84,7 +90,7 @@ export class AuthService {
 
     this.wsService.close();
     this.roomService.selectedRoom.next(null);
-    this.profileChanged.next(null);
+    this.auth.next(null);
   }
 
   isAuthenticated(): boolean {
@@ -106,7 +112,7 @@ export class AuthService {
     return null;
   }
 
-  private setProfile(user: Profile) {
+  private setAuth(user: User) {
     if (this.deviceService.isBrowser) {
       localStorage.setItem("user", JSON.stringify(user));
     }

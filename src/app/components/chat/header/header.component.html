@@ -18,11 +18,11 @@
     </div>
     @if (currentRoom()) {
     <app-room-info-modal
-      [room]="currentRoom()"
+      [roomId]="currentRoom()?.id"
       (setEditRoom)="isEditingRoom.set($event)"
     >
       <span class="text-white text-md cursor-pointer">
-        {{ currentRoom()?.display_name }}
+        {{ currentRoom()?.displayName }}
       </span>
     </app-room-info-modal>
     } @else {
@@ -31,7 +31,7 @@
     </div>
     }
   </div>
-  @if (currentRoom()?.is_admin) {
+  @if (currentRoom()?.isAdmin) {
   <p-button
     styleClass="text-stone-400 size-8"
     [dt]="buttonThemes.outlined"

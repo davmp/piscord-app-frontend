@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { catchError, Observable, shareReplay } from "rxjs";
 import type { MessagePaginationResult } from "../../models/message.models";
+import { WebsocketService } from "./ws.service";
 
 @Injectable({
   providedIn: "root",
@@ -9,6 +10,7 @@ import type { MessagePaginationResult } from "../../models/message.models";
 export class MessageService {
   private readonly apiUrl = "/api/rooms";
   private readonly http = inject(HttpClient);
+  private wsService = inject(WebsocketService);
 
   getMessages(
     roomId: string,

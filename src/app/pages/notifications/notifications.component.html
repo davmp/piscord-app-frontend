@@ -34,7 +34,7 @@
       <button
         type="button"
         class="flex items-start w-full p-4 md:rounded-md gap-4 text-start hover:bg-stone-700/50 group
-        {{ notification.read_at ? 'bg-stone-800' : 'bg-stone-700' }}"
+        {{ notification.isRead ? 'bg-stone-800' : 'bg-stone-700' }}"
         (click)="handleClickNotification(notification)"
       >
         <p-avatar
@@ -48,11 +48,11 @@
               notification.title
             }}</span>
             <span class="text-xs text-stone-500 text-nowrap">{{
-              formattedDate(notification.created_at)
+              formattedDate(notification.createdAt)
             }}</span>
           </div>
           <span class="w-full text-xs text-stone-500 line-clamp-2 truncate">{{
-            notification.content
+            notification.body
           }}</span>
         </div>
         <button

@@ -26,12 +26,13 @@
           class="w-full text-sm flex items-center p-4 gap-2 text-stone-400 [&_hr]:w-full [&_hr]:border-t [&_hr]:border-t-neutral-700"
         >
           <hr />
-          {{ dateSeparator(display.message.created_at) }}
+          {{ dateSeparator(display.message.createdAt) }}
           <hr />
         </div>
         }
         <app-message
           [message]="display.message"
+          [isOwnMessage]="display.isOwnMessage"
           [diffTime]="display.diffTime"
           [isSelected]="
             !!newMessageReply && newMessageReply()?.id === display.message.id
@@ -106,7 +107,6 @@
           fluid
           [placeholder]="inputPlaceholder()"
           [autoResize]="true"
-          [pAutoFocus]="true"
           [(ngModel)]="newMessageContent"
           [dt]="inputThemes.outlined"
           [style]="{ border: '0', backgroundColor: 'transparent' }"
@@ -131,7 +131,7 @@
       class="bg-stone-600/40 border border-stone-700/50 border-b-0 rounded-t-lg text-stone-300 w-full flex items-center justify-between px-4 py-2"
     >
       <span class="text-sm">
-        Respondendo a <b>{{ newMessageReply()?.username }}</b>
+        Respondendo a <b>{{ newMessageReply()?.author?.username }}</b>
       </span>
       <button
         class="size-4 grid place-content-center text-stone-400 hover:text-stone-200"
@@ -202,7 +202,6 @@
         [maxlength]="500"
         fluid
         [placeholder]="inputPlaceholder()"
-        [pAutoFocus]="true"
         [autoResize]="true"
         [(ngModel)]="newMessageContent"
         (keydown.enter)="$event.preventDefault(); canSend() && sendMessage()"

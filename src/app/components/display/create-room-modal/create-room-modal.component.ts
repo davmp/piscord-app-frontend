@@ -10,8 +10,12 @@ import { ButtonModule } from "primeng/button";
 import { DialogModule } from "primeng/dialog";
 import { InputTextModule } from "primeng/inputtext";
 import { TextareaModule } from "primeng/textarea";
+import type { CreateRoomRequest } from "../../../models/rooms.models";
 import { ChatService } from "../../../services/chat/chat.service";
 import * as themes from "../../../themes/form.themes";
+
+import { catchError, EMPTY, finalize } from "rxjs";
+import { RoomService } from "../../../services/room/room.service";
 
 @Component({
   selector: "app-create-room-modal",
@@ -26,6 +30,7 @@ import * as themes from "../../../themes/form.themes";
 })
 export class CreateRoomModalComponent {
   private chatService = inject(ChatService);
+  private roomService = inject(RoomService);
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
   form: FormGroup;
@@ -42,10 +47,11 @@ export class CreateRoomModalComponent {
     this.form = this.formBuilder.group({
       name: ["", Validators.required],
       info: [""],
-      type: ["public", Validators.required],
+      public: [true, Validators.required],
       picture: [null],
-      maxMembers: [0, [Validators.min(0), Validators.max(200)]],
-      participantIDs: [[]],
+      maxMembers: [20, [Validators.min(0), Validators.max(200)]],
+      members: [[]],
+      admins: [[]],
     });
   }
 
@@ -56,24 +62,46 @@ export class CreateRoomModalComponent {
 
     const val = this.form.value;
 
-    if (val.name && val.type) {
+    if (val.name) {
       this.isLoading.set(true);
 
-      const createRoomRequest = {
+      const members = val.members.filter((member: string) => member !== "");
+      const admins = val.admins.filter((admin: string) => admin !== "");
+
+      if (members.length >= val.maxMembers) {
+        this.isLoading.set(false);
+        this.form.get("maxMembers")?.setErrors({
+          maxMembers: true,
+        });
+        return;
+      }
+
+      const createRoomRequest: CreateRoomRequest = {
         name: val.name,
         description: val.info,
-        type: val.type,
+        type: val.public ? "public" : "private",
         picture: val.picture,
-        max_members: val.maxMembers > 0 ? val.maxMembers : undefined,
-        participant_ids: val.participantIDs,
+        maxMembers: val.maxMembers > 0 ? val.maxMembers : undefined,
+        members: members,
+        admins: admins,
       };
-      this.chatService.createRoom(createRoomRequest).subscribe((room) => {
-        this.router.navigateByUrl(`/rooms/${room.id}`);
-        this.handleSetVisible(false);
-        this.form.reset();
-      });
 
-      this.isLoading.set(false);
+      this.chatService
+        .createRoom(createRoomRequest)
+        .pipe(
+          finalize(() => this.isLoading.set(false)),
+          catchError((err) => {
+            console.error("Error creating room: ", err);
+            return EMPTY;
+          })
+        )
+        .subscribe((room) => {
+          this.roomService.roomCreated.next(room);
+          this.roomService.selectedRoom.next(room);
+          this.router.navigateByUrl(`/rooms/${room.id}`);
+          this.handleSetVisible(false);
+          this.form.reset();
+        });
     }
   }
 

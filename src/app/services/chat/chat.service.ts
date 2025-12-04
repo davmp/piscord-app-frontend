@@ -8,7 +8,7 @@ import {
   tap,
   throwError,
 } from "rxjs";
-import type { WSMessage } from "../../models/message.models";
+import type { SendMessage, WSMessage } from "../../models/message.models";
 import type {
   CreateRoomRequest,
   Room,
@@ -16,6 +16,7 @@ import type {
   UpdateRoomRequest,
 } from "../../models/rooms.models";
 import { RoomService } from "../room/room.service";
+import { AuthService } from "../user/auth/auth.service";
 import { WebsocketService } from "./ws.service";
 
 @Injectable({
@@ -23,6 +24,7 @@ import { WebsocketService } from "./ws.service";
 })
 export class ChatService {
   private wsService = inject(WebsocketService);
+  private authService = inject(AuthService);
   private roomService = inject(RoomService);
 
   private roomsChanged$!: Observable<void>;
@@ -49,30 +51,31 @@ export class ChatService {
     return this.roomsChanged$;
   }
 
-  sendMessage(
-    content: string,
-    replyMessageId: string | null,
-    fileUrl: string | null
-  ) {
+  sendMessage(message: SendMessage) {
     const roomId = this.currentRoom()?.id;
 
     if (!roomId || !this.wsService.connected) {
       return "Not connected";
     }
 
-    if (content.trim().length > 0 || fileUrl) {
-      const message: WSMessage = {
-        type: "message",
-        payload: {
-          action: "send_message",
-          room_id: roomId,
-          file_url: fileUrl,
-          reply_to: replyMessageId,
-          content,
-        },
-      };
+    if (message.content.trim().length > 0 || message.fileUrl) {
+      const author = this.authService.auth.value;
 
-      this.wsService.sendMessage(message);
+      if (!author || !author.id) {
+        return "Unauthorized"
+      }
+      
+      this.wsService.sendMessage(
+        {
+          type: "message.send",
+          payload: {
+              ...message,
+              author,
+              roomId,
+              sentAt: Date.now().toLocaleString()
+          },
+        } as WSMessage
+      );
       return null;
     }
     return "Too small";
@@ -89,9 +92,9 @@ export class ChatService {
       const message: WSMessage = {
         type: "message",
         payload: {
-          action: "edit_message",
-          room_id: roomId,
-          message_id: messageId,
+          action: "message:edit",
+          roomId: roomId,
+          messageId: messageId,
           content,
         },
       };
@@ -112,8 +115,8 @@ export class ChatService {
 
     if (room) {
       this.wsService.sendMessage({
-        type: "connection",
-        payload: { action: "enter_room", room_id: room.id },
+        type: "room.enter",
+        payload: { roomId: room.id },
       });
     }
     return null;
@@ -127,8 +130,8 @@ export class ChatService {
       this.typingUsers = [];
 
       this.wsService.sendMessage({
-        type: "connection",
-        payload: { action: "enter_room", room_id: roomId },
+        type: "room.enter",
+        payload: { roomId: roomId },
       });
     });
     return null;
@@ -143,8 +146,8 @@ export class ChatService {
         this.typingUsers = [];
 
         this.wsService.sendMessage({
-          type: "connection",
-          payload: { action: "enter_room", room_id: room.id },
+          type: "room.enter",
+          payload: { roomId: room.id },
         });
       })
     );
@@ -200,8 +203,8 @@ export class ChatService {
 
             this.wsService.sendMessage(
               JSON.stringify({
-                type: "connection",
-                payload: { action: "join_room", room_id: newRoomId },
+                type: "room.join",
+                payload: { roomId: newRoomId },
               })
             );
           },
@@ -219,8 +222,8 @@ export class ChatService {
 
     this.wsService.sendMessage(
       JSON.stringify({
-        type: "connection",
-        payload: { action: "leave_room", room_id: roomId },
+        type: "room.leave",
+        payload: { roomId: roomId },
       })
     );
 
@@ -240,8 +243,8 @@ export class ChatService {
 
     this.wsService.sendMessage(
       JSON.stringify({
-        type: "connection",
-        payload: { action: "exit_room", room_id: roomId },
+        type: "room.exit",
+        payload: { roomId: roomId },
       })
     );
 

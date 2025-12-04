@@ -13,24 +13,24 @@
   (touchstart)="handleLongPressStart()"
   (touchend)="handleLongPressEnd()"
 >
-  @if (message()?.reply_to) {
+  @if (message()?.replyTo) {
   <div class="flex items-center gap-1 ml-5 mb-2 text-stone-400">
     <i class="pi pi-reply mr-2"></i>
     <div class="flex items-center gap-1">
       <p-avatar
-        [image]="message()?.reply_to?.picture || '/assets/piscord.svg'"
+        [image]="message()?.replyTo?.author?.picture || '/assets/piscord.svg'"
         shape="circle"
         styleClass="size-4! [&_img]:object-cover"
         class="bg-lime-700!"
         #picture
       ></p-avatar>
       <span class="text-xs text-stone-400 font-medium text-nowrap">{{
-        message()?.reply_to?.username
+        message()?.replyTo?.author?.username
       }}</span>
     </div>
     <span
       class="text-xs text-stone-300 font-normal text-nowrap line-clamp-1 truncate"
-      >{{ message()?.reply_to?.content }}</span
+      >{{ message()?.replyTo?.content }}</span
     >
   </div>
   }
@@ -40,7 +40,7 @@
       class="col-start-1 col-end-2 h-full max-h-16 flex-shrink-0 flex items-center justify-center"
     >
       <p-avatar
-        [image]="message()?.picture || '/assets/piscord.svg'"
+        [image]="message()?.author?.picture || '/assets/piscord.svg'"
         shape="circle"
         styleClass="size-10! [&_img]:object-cover"
         class="bg-lime-600!"
@@ -49,14 +49,14 @@
     </div>
     <div class="col-start-2 col-end-3">
       <app-user-popover
-        [userId]="message()?.user_id"
-        [isOwn]="message()?.is_own_message ?? false"
+        [userId]="message()?.author?.id"
+        [isOwn]="isOwnMessage()"
       >
         <div class="flex items-center space-x-2">
           <span
             class="font-medium text-stone-200 hover:underline cursor-pointer"
           >
-            {{ message()?.username }}
+            {{ message()?.author?.username }}
           </span>
           <span class="text-xs text-stone-500">
             {{ formattedFullDate() }}
@@ -70,7 +70,7 @@
         [maxlength]="500"
         fluid
         [autoResize]="true"
-        [pAutoFocus]="true"
+        [pAutoFocus]="false"
         [(ngModel)]="newMessageContent"
         [dt]="inputThemes.outlined"
         (blur)="
@@ -94,14 +94,14 @@
         class="w-fit font-normal text-stone-300 break-words break-all whitespace-pre-wrap hyphens-auto"
       >
         {{ message()?.content }}
-        @if (message()?.is_edited) {
+        @if (!!message()?.editedAt) {
         <span class="text-xs text-neutral-400">(editado)</span>
         }
       </p>
-      } @if (message()?.file_url) {
+      } @if (message()?.fileUrl) {
       <div class="w-full pb-1">
         <p-image
-          [src]="message()?.file_url"
+          [src]="message()?.fileUrl"
           [alt]="message()?.id + '-image'"
           class="object-contain max-h-[512px] max-w-xs"
           styleClass="[&_.p-image-preview-mask]:opacity-0! [&_.p-image-preview-mask]:cursor-pointer!"
@@ -128,7 +128,7 @@
         [maxlength]="500"
         fluid
         [autoResize]="true"
-        [pAutoFocus]="true"
+        [pAutoFocus]="false"
         [(ngModel)]="newMessageContent"
         [dt]="inputThemes.outlined"
         (blur)="
@@ -152,13 +152,19 @@
         class="w-fit font-normal text-stone-300 break-words break-all whitespace-pre-wrap hyphens-auto"
       >
         {{ message()?.content }}
-        @if (message()?.is_edited) {
+        @if (!!message()?.editedAt) {
         <span class="text-xs text-neutral-400">(editado)</span>
         }
       </p>
-      } @if (message()?.file_url) {
+      } @if (message()?.fileUrl) {
       <div class="pb-1">
-        <img [src]="message()?.file_url" class="object-contain max-h-32" />
+        <p-image
+          [src]="message()?.fileUrl"
+          [alt]="message()?.id + '-image'"
+          class="object-contain max-h-[512px] max-w-xs"
+          styleClass="[&_img]:object-contain max-h-[512px] max-w-xs"
+          [preview]="true"
+        />
       </div>
       }
     </div>
@@ -168,7 +174,7 @@
       class="absolute right-4 -top-4 opacity-0 group-hover/message:opacity-100 rounded-md w-fit p-[2px] bg-stone-800 border border-stone-700 text-stone-500 hover:border-stone-600 flex items-center z-20"
       [class.opacity-100]="showMobileActions()"
     >
-      @if (message()?.is_own_message) {
+      @if (isOwnMessage()) {
       <button
         type="button"
         class="size-7 p-1 rounded-md hover:bg-stone-700/40 hover:text-stone-300 grid place-content-center"

@@ -118,7 +118,6 @@
           fluid
           placeholder="Converse com {{ user()?.username }}"
           [autoResize]="true"
-          [pAutoFocus]="true"
           [(ngModel)]="newMessageContent"
           [dt]="inputThemes.outlined"
           [style]="{ border: '0', backgroundColor: 'transparent' }"
@@ -197,7 +196,6 @@
         [maxlength]="500"
         fluid
         placeholder="Converse com {{ user()?.username }}"
-        [pAutoFocus]="true"
         [autoResize]="true"
         [(ngModel)]="newMessageContent"
         (keydown.enter)="$event.preventDefault(); canSend() && sendMessage()"

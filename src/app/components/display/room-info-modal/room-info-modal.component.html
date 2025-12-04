@@ -16,7 +16,7 @@
         class="absolute top-0 right-0 left-0 h-28 bg-[url('/assets/auth-bg.png')] bg-cover bg-center"
       ></span>
       <div class="absolute top-[120px] right-2 flex items-center space-x-1">
-        @if (room()?.is_admin) {
+        @if (room()?.isAdmin) {
         <p-button
           styleClass="text-stone-400 size-8"
           [dt]="buttonThemes.outlined"
@@ -43,13 +43,13 @@
       <div class="flex-1 flex items-end">
         <div class="overflow-hidden text-ellipsis space-y-1">
           <p class="text-xl font-semibold text-stone-100 truncate">
-            {{ room()?.display_name }}
+            {{ room()?.displayName }}
           </p>
           <p class="text-xs text-stone-400 truncate">#{{ room()?.id }}</p>
         </div>
         <span
           class="ml-auto text-sm text-stone-400 font-light"
-          >{{ `${room()?.member_count}/${room()?.max_members ?? 50}` }}</span
+          >{{ `${room()?.members?.length ?? 0}/${room()?.maxMembers ?? 50}` }}</span
         >
       </div>
     </div>
@@ -68,7 +68,7 @@
           <div class="w-full flex flex-col text-sm">
             <span class="text-xs font-normal">Criado em</span>
             <p class="font-light font-lg">
-              {{ formatDate(room()?.created_at) }}
+              {{ formatDate(room()?.createdAt) }}
             </p>
           </div>
 
@@ -92,8 +92,8 @@
             <li class="absolute inset-0 grid place-content-center">
               <span class="text-neutral-400">Nenhum membro ainda.</span>
             </li>
-            } @for (member of members(); track member.user_id) {
-            <app-user-popover [userId]="member.user_id" [isOwn]="member.is_me">
+            } @for (member of membersDisplay(); track member.userId) {
+            <app-user-popover [userId]="member.userId" [isOwn]="member.isMe">
               <div
                 class="flex-1 flex items-center gap-3 rounded-lg p-1 px-2 group/member"
               >
@@ -105,25 +105,25 @@
                   />
                   <span
                     class="absolute -bottom-0.5 -right-0.5 size-3 border-2 border-stone-800 rounded-full {{
-                      member.is_online ? 'bg-green-500' : 'bg-red-500'
+                      member.isOnline ? 'bg-green-500' : 'bg-red-500'
                     }}"
                   ></span>
                 </div>
                 <div class="flex-1 flex items-center gap-1 overflow-x-hidden">
                   <span class="text-lg text-start text-nowrap truncate">
-                    {{ member.is_me ? "Eu" : member.username }}
+                    {{ member.isMe ? "Eu" : member.username }}
                   </span>
-                  @if (member.is_admin) {
+                  @if (member.isAdmin) {
                   <span class="px-1 text-xs bg-stone-500 rounded-sm">
                     Admin
                   </span>
                   }
                 </div>
                 <div class="ml-auto flex items-center space-x-2">
-                  @if (!member.is_me && room()?.is_admin && !member.is_admin) {
+                  @if (!member.isMe && room()?.isAdmin && !member.isAdmin) {
                   <p-button
                     class="grid place-content-center hover:text-stone-200 text-stone-500"
-                    (click)="handleRemoveMember(member.user_id)"
+                    (click)="handleRemoveMember(member.userId)"
                     severity="danger"
                     icon="pi pi-trash"
                     [dt]="buttonThemes.outlined"
@@ -163,7 +163,7 @@
         class="absolute top-0 right-0 left-0 h-28 bg-[url('/assets/auth-bg.png')] bg-cover bg-center"
       ></span>
       <div class="absolute top-[120px] right-2 flex items-center space-x-1">
-        @if (room()?.is_admin) {
+        @if (room()?.isAdmin) {
         <p-button
           styleClass="text-stone-400 size-8"
           [dt]="buttonThemes.outlined"
@@ -189,7 +189,7 @@
       </div>
       <div class="flex-1 overflow-hidden text-ellipsis space-y-1">
         <p class="text-xl font-semibold text-stone-100 truncate">
-          {{ room()?.display_name }}
+          {{ room()?.displayName }}
         </p>
         <p class="text-xs text-stone-400 truncate">#{{ room()?.id }}</p>
       </div>
@@ -198,7 +198,7 @@
     <div class="w-full flex flex-col text-sm">
       <span class="text-xs font-normal">Criado em</span>
       <p class="font-light">
-        {{ formatDate(room()?.created_at) }}
+        {{ formatDate(room()?.createdAt) }}
       </p>
     </div>
 
@@ -221,17 +221,36 @@
       </h1>
       <span
         class="ml-auto text-sm text-stone-400 font-light"
-        >{{ `${room()?.member_count}/${room()?.max_members ?? 50}` }}</span
+        >{{ `${room()?.members?.length ?? 0}/${room()?.maxMembers ?? 50}` }}</span
       >
     </div>
-    <div class="overflow-y-auto hide-scrollbar pt-4">
+    <div class="overflow-y-auto h-full hide-scrollbar pt-4">
       <ul class="flex-1 h-full relative space-y-1">
-        @if (room()?.members?.length! <= 0) {
+        @if (isLoading()) {
+        <li class="flex items-center gap-3 p-1 px-2">
+          <p-skeleton shape="circle" size="2rem" styleClass="bg-stone-700" />
+          <div class="flex-1 flex flex-col gap-2">
+            <p-skeleton width="60%" height="1rem" styleClass="bg-stone-700" />
+          </div>
+        </li>
+        <li class="flex items-center gap-3 p-1 px-2">
+          <p-skeleton shape="circle" size="2rem" styleClass="bg-stone-700" />
+          <div class="flex-1 flex flex-col gap-2">
+            <p-skeleton width="40%" height="1rem" styleClass="bg-stone-700" />
+          </div>
+        </li>
+        <li class="flex items-center gap-3 p-1 px-2">
+          <p-skeleton shape="circle" size="2rem" styleClass="bg-stone-700" />
+          <div class="flex-1 flex flex-col gap-2">
+            <p-skeleton width="50%" height="1rem" styleClass="bg-stone-700" />
+          </div>
+        </li>
+        } @else if (!room() || room()?.members?.length! <= 0) {
         <li class="absolute inset-0 grid place-content-center">
           <span class="text-neutral-400">Nenhum membro ainda.</span>
         </li>
-        } @for (member of members(); track member.user_id) {
-        <app-user-popover [userId]="member.user_id" [isOwn]="member.is_me">
+        } @for (member of membersDisplay(); track member.userId) {
+        <app-user-popover [userId]="member.userId" [isOwn]="member.isMe">
           <div
             class="flex-1 flex items-center gap-3 hover:bg-stone-600/20 rounded-lg p-1 px-2 group/member"
           >
@@ -243,25 +262,25 @@
               />
               <span
                 class="absolute -bottom-0.5 -right-0.5 size-3 border-2 border-stone-800 rounded-full {{
-                  member.is_online ? 'bg-green-500' : 'bg-red-500'
+                  member.isOnline ? 'bg-green-500' : 'bg-red-500'
                 }}"
               ></span>
             </div>
             <div class="flex-1 flex items-center gap-1 overflow-x-hidden">
               <span class="text-start text-nowrap truncate">
-                {{ member.is_me ? "Eu" : member.username }}
+                {{ member.isMe ? "Eu" : member.username }}
               </span>
-              @if (member.is_admin) {
+              @if (member.isAdmin) {
               <span class="px-1 text-xs bg-stone-500 rounded-sm"> Admin </span>
               }
             </div>
             <div
               class="ml-auto hidden group-hover/member:flex items-center space-x-2"
             >
-              @if (!member.is_me && room()?.is_admin && !member.is_admin) {
+              @if (!member.isMe && room()?.isAdmin && !member.isAdmin) {
               <p-button
                 class="grid place-content-center hover:text-stone-200 text-stone-500"
-                (click)="handleRemoveMember(member.user_id)"
+                (click)="handleRemoveMember(member.userId)"
                 severity="danger"
                 icon="pi pi-trash"
                 [dt]="buttonThemes.outlined"

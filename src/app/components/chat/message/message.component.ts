@@ -5,9 +5,9 @@ import { Avatar } from "primeng/avatar";
 import { Image } from "primeng/image";
 import { Textarea } from "primeng/textarea";
 import {
-  DisplayMessage,
+  Message,
+  type MessagePreview,
   type SelectedMessageEdit,
-  type SelectedReplyMessage,
 } from "../../../models/message.models";
 import * as formThemes from "../../../themes/form.themes";
 import { formatDate, formatDateLong } from "../../../utils/date-formatter";
@@ -26,11 +26,12 @@ import { UserPopoverComponent } from "../../display/profile-popover/user-popover
   templateUrl: "./message.component.html",
 })
 export class MessageComponent {
-  message = input<DisplayMessage>();
+  message = input<Message>();
   diffTime = input(true);
+  isOwnMessage = input(false);
   isSelected = input(false);
   onEditMessage = output<SelectedMessageEdit>();
-  onSelectReplyMessage = output<SelectedReplyMessage>();
+  onSelectReplyMessage = output<MessagePreview>();
 
   newMessageContent = signal("");
   isEditingMessage = signal(false);
@@ -54,10 +55,13 @@ export class MessageComponent {
 
     this.onSelectReplyMessage.emit({
       id: message.id,
-      user_id: message.user_id,
-      username: message.username,
-      picture: message.picture,
+      author: {
+        id: message.author.id,
+        username: message.author.username,
+        picture: message.author.picture,
+      },
       content: message.content,
+      createdAt: message.createdAt,
     });
   }
 
@@ -77,12 +81,12 @@ export class MessageComponent {
   }
 
   formattedDate() {
-    const createdAt = this.message()?.created_at || "";
+    const createdAt = this.message()?.createdAt || "";
     return formatDate(createdAt);
   }
 
   formattedFullDate() {
-    const createdAt = this.message()?.created_at || "";
+    const createdAt = this.message()?.createdAt || "";
     return formatDateLong(createdAt);
   }
 

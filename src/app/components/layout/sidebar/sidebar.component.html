@@ -77,19 +77,19 @@
         <div class="flex-1 overflow-x-hidden flex flex-col -space-y-1">
           <div class="flex-1 flex items-start justify-between">
             <span class="flex-1 text-start text-nowrap truncate">
-              {{ room.display_name }}
+              {{ room.displayName }}
             </span>
-            @if (room.last_message) {<span
+            @if (room.lastMessage) {<span
               class="min-w-fit text-[10px] text-neutral-500"
-              >{{ formattedDate(room.last_message.created_at) }}</span
+              >{{ formattedDate(room.lastMessage.createdAt) }}</span
             >}
           </div>
-          @if (room.last_message) {
+          @if (room.lastMessage) {
           <span
             class="w-full inline-block text-sm text-stone-500 font-normal text-start text-nowrap truncate"
           >
-            {{ room.last_message.username }}:
-            {{ room.last_message.content }}</span
+            {{ room.lastMessage.author.username }}:
+            {{ room.lastMessage.content }}</span
           >
           }
         </div>

@@ -15,13 +15,13 @@ export class NotificationService {
   private manualRefresh$ = new Subject<void>();
   readonly notifications$ = merge(
     this.wsService.connection().pipe(
-      filter((msg) => msg.type === "notification"),
+      filter((msg) => msg.type.includes("notification")),
       map(() => true)
     ),
     this.manualRefresh$
   ).pipe(share());
   readonly messages$ = this.wsService.connection().pipe(
-    filter((msg) => msg.type === "message_notification"),
+    filter((msg) => msg.type === "message:notification"),
     map((message) => message.data),
     share()
   );

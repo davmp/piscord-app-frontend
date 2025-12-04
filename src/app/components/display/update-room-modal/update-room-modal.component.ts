@@ -61,28 +61,28 @@ export class UpdateRoomModalComponent {
       .subscribe((room) => this.room.set(room));
 
     this.form = this.formBuilder.group({
-      name: [this.room()?.display_name || "", Validators.required],
+      name: [this.room()?.displayName || "", Validators.required],
       description: [this.room()?.description || ""],
       picture: [this.room()?.picture],
       maxMembers: [
-        this.room()?.max_members,
+        this.room()?.maxMembers,
         [Validators.min(0), Validators.max(200)],
       ],
-      removeParticipantIds: [[] as string[]],
+      removeMembers: [[] as string[]],
     });
 
     effect(() => {
       this.room();
 
       this.form = this.formBuilder.group({
-        name: [this.room()?.display_name || "", Validators.required],
+        name: [this.room()?.displayName || "", Validators.required],
         description: [this.room()?.description || ""],
         picture: [this.room()?.picture],
         maxMembers: [
-          this.room()?.max_members,
+          this.room()?.maxMembers,
           [Validators.min(0), Validators.max(200)],
         ],
-        removeParticipantIds: [[] as string[]],
+        removeMembers: [[] as string[]],
       });
     });
   }
@@ -120,7 +120,7 @@ export class UpdateRoomModalComponent {
     const room = this.roomService.selectedRoom.value;
     const dat: Partial<UpdateRoomRequest> = {};
 
-    if (this.form.get("name")?.value !== room?.display_name) {
+    if (this.form.get("name")?.value !== room?.displayName) {
       dat.name = this.form.get("name")?.value;
     }
     if (this.form.get("description")?.value !== room?.description) {
@@ -129,11 +129,11 @@ export class UpdateRoomModalComponent {
     if (this.form.get("picture")?.value !== room?.picture) {
       dat.picture = this.form.get("picture")?.value;
     }
-    if (this.form.get("maxMembers")?.value !== room?.max_members) {
-      dat.max_members = this.form.get("maxMembers")?.value;
+    if (this.form.get("maxMembers")?.value !== room?.maxMembers) {
+      dat.maxMembers = this.form.get("maxMembers")?.value;
     }
-    if (this.form.get("removeParticipantIds")) {
-      dat.remove_participant_ids = this.form.get("removeParticipantIds")?.value;
+    if (this.form.get("removeMembers")) {
+      dat.removeMembers = this.form.get("removeMembers")?.value;
     }
 
     return dat;

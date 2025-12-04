@@ -1,4 +1,4 @@
-import { Component, inject, output, signal } from "@angular/core";
+import { Component, effect, inject, output, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterLink } from "@angular/router";
 import type { MenuItem } from "primeng/api";
@@ -6,6 +6,7 @@ import { Avatar } from "primeng/avatar";
 import { Button } from "primeng/button";
 import { Drawer } from "primeng/drawer";
 import { Menu } from "primeng/menu";
+import type { Profile, User } from "../../../../models/user.models";
 import { DeviceService } from "../../../../services/device.service";
 import { NotificationService } from "../../../../services/notification/notification.service";
 import { AuthService } from "../../../../services/user/auth/auth.service";
@@ -22,7 +23,9 @@ export class UserInfoComponent {
   private notificationService = inject(NotificationService);
   private deviceService = inject(DeviceService);
 
-  profile = signal(this.authService.profileChanged.value);
+  user = signal(null as User | null);
+  profile = signal(null as Profile | null);
+
   visible = signal(false);
   unreadNotificationCount = signal(undefined as string | undefined);
   setOpenModal = output<"createRoom" | "findRooms">();
@@ -65,15 +68,25 @@ export class UserInfoComponent {
   ];
 
   constructor() {
-    this.authService.profileChanged
+    this.authService.auth
       .pipe(takeUntilDestroyed())
-      .subscribe((profile) => this.profile.set(profile));
+      .subscribe((user) => this.user.set(user));
 
     this.notificationService.notifications$
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
         this.loadNotificationCount();
       });
+
+      effect(() => {
+        this.visible();
+
+        if (this.visible()) {
+          this.authService.getProfile()
+            .pipe(takeUntilDestroyed())
+            .subscribe((profile) => this.profile.set(profile));
+        }
+      })
   }
 
   loadNotificationCount() {

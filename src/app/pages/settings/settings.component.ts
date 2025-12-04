@@ -16,7 +16,7 @@ import { Message } from "primeng/message";
 import { Password } from "primeng/password";
 import { Textarea } from "primeng/textarea";
 import { catchError, EMPTY, finalize, startWith, tap } from "rxjs";
-import type { UpdateProfileRequest } from "../../models/user.models";
+import type { Profile, UpdateProfileRequest } from "../../models/user.models";
 import { AuthService } from "../../services/user/auth/auth.service";
 import * as themes from "../../themes/form.themes";
 
@@ -41,7 +41,7 @@ export class SettingsComponent {
   private formBuilder = inject(FormBuilder);
   form: FormGroup;
 
-  readonly profile = signal(this.authService.profileChanged.value);
+  profile = signal(null as Profile | null);
   isLoading = signal(false);
   success = signal(false);
   errorMessage = signal(undefined as string | undefined);
@@ -50,18 +50,6 @@ export class SettingsComponent {
   readonly inputThemes = themes.inputThemes;
 
   constructor() {
-    this.getProfile();
-
-    this.authService.profileChanged.pipe(takeUntilDestroyed()).subscribe({
-      next: (profile) => {
-        this.form.get("username")?.setValue(profile?.username);
-        this.form.get("picture")?.setValue(profile?.picture);
-        this.form.get("bio")?.setValue(profile?.bio);
-
-        this.profile.set(profile);
-      },
-    });
-
     this.form = this.formBuilder.group({
       username: [
         "",
@@ -78,11 +66,25 @@ export class SettingsComponent {
         Validators.compose([Validators.minLength(4), Validators.maxLength(50)]),
       ],
     });
-  }
 
-  getProfile() {
-    this.isLoading.set(true);
-    this.authService.getProfile().subscribe(() => this.isLoading.set(false));
+    this.authService.getProfile().pipe(
+      tap((profile) => {
+        this.form.get("username")?.setValue(profile?.username);
+        this.form.get("picture")?.setValue(profile?.picture);
+        this.form.get("bio")?.setValue(profile?.bio);
+
+        this.profile.set(profile);
+      }),
+        finalize(() => this.isLoading.set(false)),
+        catchError((err) => {
+          this.errorMessage.set(
+            err.error.error ?? "Ocorreu um erro ao atualizar o perfil."
+          );
+          return EMPTY;
+        }),
+        startWith(() => this.isLoading.set(true)),
+      takeUntilDestroyed()
+    ).subscribe();
   }
 
   updateProfile() {

@@ -10,7 +10,6 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { AutoFocus } from "primeng/autofocus";
 import { Button } from "primeng/button";
 import { InputGroup } from "primeng/inputgroup";
 import { InputGroupAddon } from "primeng/inputgroupaddon";
@@ -30,15 +29,16 @@ import { HeaderComponent } from "../../components/chat/header/header.component";
 import { MessageComponent } from "../../components/chat/message/message.component";
 import {
   type Message,
+  type MessagePreview,
   type SelectedMessageEdit,
-  type SelectedReplyMessage,
-  type WSResponse,
+  type WSResponse
 } from "../../models/message.models";
 import { ChatService } from "../../services/chat/chat.service";
 import { MessageService } from "../../services/chat/message.service";
 import { WebsocketService } from "../../services/chat/ws.service";
 import { DeviceService } from "../../services/device.service";
 import { RoomService } from "../../services/room/room.service";
+import { AuthService } from "../../services/user/auth/auth.service";
 import * as formThemes from "../../themes/form.themes";
 
 @Component({
@@ -52,15 +52,15 @@ import * as formThemes from "../../themes/form.themes";
     Popover,
     InputGroup,
     InputGroupAddon,
-    AutoFocus,
     FormsModule,
   ],
   templateUrl: "./chat.component.html",
 })
 export class ChatComponent implements OnDestroy {
   private route = inject(ActivatedRoute);
-  private roomService = inject(RoomService);
+  private authService = inject(AuthService);
   private chatService = inject(ChatService);
+  private roomService = inject(RoomService);
   private wsService = inject(WebsocketService);
   private messageService = inject(MessageService);
   private deviceService = inject(DeviceService);
@@ -68,7 +68,7 @@ export class ChatComponent implements OnDestroy {
   newMessageContent = signal("");
   newMessageFileUrl = signal(null as string | null);
   tempFileUrl = signal(null as string | null);
-  newMessageReply = signal(null as SelectedReplyMessage | null);
+  newMessageReply = signal(null as MessagePreview | null);
   messages = signal<Message[]>([]);
   loadingMessages = signal(false);
   currentRoom = signal(this.roomService.selectedRoom.value);
@@ -82,8 +82,8 @@ export class ChatComponent implements OnDestroy {
   readonly inputPlaceholder = computed(() => {
     if (this.currentRoom()) {
       return this.currentRoom()?.type === "direct"
-        ? `Converse com @${this.currentRoom()?.display_name}`
-        : `Conversar em ${this.currentRoom()?.display_name}`;
+        ? `Converse com @${this.currentRoom()?.displayName}`
+        : `Conversar em ${this.currentRoom()?.displayName}`;
     }
     return "Selecione uma sala";
   });
@@ -96,24 +96,21 @@ export class ChatComponent implements OnDestroy {
     return this.messages().map((message, index) => {
       const previousMessage = this.messages()[index - 1];
 
-      const currentDate = new Date(message.created_at);
+      const currentDate = new Date(message.createdAt);
       currentDate.setHours(currentDate.getHours() + 3);
       const previousDate = previousMessage
-        ? new Date(previousMessage.created_at)
+        ? new Date(previousMessage.createdAt)
         : null;
       const showDateSeparator =
         !previousDate ||
         currentDate.toDateString() !== previousDate.toDateString();
 
       let diffTime = true;
-      if (message.reply_to) {
+      if (message.replyTo) {
         diffTime = true;
-      } else if (
-        previousMessage &&
-        previousMessage.user_id === message.user_id
-      ) {
-        const prevTime = new Date(previousMessage.created_at).getTime();
-        const currTime = new Date(message.created_at).getTime();
+      } else if (previousMessage && previousMessage.author.id === message.author.id) {
+        const prevTime = new Date(previousMessage.createdAt).getTime();
+        const currTime = new Date(message.createdAt).getTime();
 
         if (currTime - prevTime <= 300000) {
           diffTime = false;
@@ -121,7 +118,7 @@ export class ChatComponent implements OnDestroy {
       }
 
       message.content = message.content.trim();
-      return { message, showDateSeparator, diffTime };
+      return { message, showDateSeparator, diffTime, isOwnMessage: this.authService.auth.value?.id === message.author.id};
     });
   });
 
@@ -174,24 +171,32 @@ export class ChatComponent implements OnDestroy {
       .pipe(
         filter(
           (wsMessage: WSResponse) =>
-            wsMessage.type === "new_message" && !!wsMessage.data
+            wsMessage.type === "new.message" && !!wsMessage.data
         ),
         takeUntilDestroyed()
       )
       .subscribe((wsMessage: WSResponse) => {
         const currentRoom = this.currentRoom();
         if (
-          wsMessage.data.message.room_id &&
+          wsMessage.data.roomId &&
           currentRoom &&
-          wsMessage.data.message.room_id !== currentRoom.id
+          wsMessage.data.roomId !== currentRoom.id
         ) {
           return;
         }
 
-        const message = {
-          ...wsMessage.data.message,
-          is_own_message: wsMessage.data.is_own_message,
+        const message: Message = {
+          id: wsMessage.data.id,
+          roomId: wsMessage.data.roomId,
+          content: wsMessage.data.content,
+          fileUrl: wsMessage.data.fileUrl,
+          author: wsMessage.data.author,
+          replyTo: wsMessage.data.replyTo,
+          isDeleted: false,
+          updatedAt: wsMessage.data.sentAt,
+          createdAt: wsMessage.data.sentAt,
         };
+
         this.messages.set([...(this.messages() ?? []), message]);
       });
   }
@@ -219,13 +224,11 @@ export class ChatComponent implements OnDestroy {
       (this.newMessageContent().trim() || this.newMessageFileUrl()) &&
       this.currentRoom()
     ) {
-      const replyMessageId = this.newMessageReply()?.id ?? null;
-
-      const err = this.chatService.sendMessage(
-        this.newMessageContent(),
-        replyMessageId,
-        this.newMessageFileUrl()
-      );
+      const err = this.chatService.sendMessage({
+        content: this.newMessageContent(),
+        fileUrl: this.newMessageFileUrl(),
+        replyTo: this.newMessageReply()
+      });
       if (err) {
         console.error("Error sending message: ", err);
         return;
@@ -249,7 +252,7 @@ export class ChatComponent implements OnDestroy {
         this.messages().map((message) => {
           if (data.id === message.id) {
             message.content = data.content;
-            message.is_edited = true;
+            message.editedAt = undefined;
           }
           return message;
         })
@@ -257,7 +260,7 @@ export class ChatComponent implements OnDestroy {
     }
   }
 
-  onReplySelected(reply: SelectedReplyMessage): void {
+  onReplySelected(reply: MessagePreview): void {
     this.newMessageReply.set(reply);
 
     setTimeout(() => {

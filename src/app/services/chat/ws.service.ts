@@ -23,7 +23,7 @@ export class WebsocketService {
 
   private socket$!: WebSocketSubject<any>;
   connection$ = this.deviceService.isBrowser
-    ? this.authService.profileChanged.pipe(
+    ? this.authService.auth.pipe(
         filter((profile) => !!profile),
         switchMap(() => this.createConnection()),
         shareReplay({ bufferSize: 1, refCount: true })
